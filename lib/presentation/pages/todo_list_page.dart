@@ -4,7 +4,7 @@ import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 import 'package:to_do/presentation/widgets/todo_item_widget.dart';
 
 class TodoListPage extends StatelessWidget {
-  const TodoListPage({Key? key}) : super(key: key);
+  const TodoListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
