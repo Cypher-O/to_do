@@ -1,0 +1,32 @@
+import 'package:to_do/domain/repositories/auth_repositories.dart';
+
+import '../../domain/entities/user.dart';
+import '../datasources/auth_remote_data_source.dart';
+import '../../core/errors/failures.dart';
+import 'package:dartz/dartz.dart';
+
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthRemoteDataSource remoteDataSource;
+
+  AuthRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, User>> login(String email, String password) async {
+    try {
+      final user = await remoteDataSource.login(email, password);
+      return Right(user);
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> register(String email, String password) async {
+    try {
+      final user = await remoteDataSource.register(email, password);
+      return Right(user);
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    }
+  }
+}
