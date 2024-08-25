@@ -12,8 +12,8 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-   late List<Todo> _sortedTodos;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  late List<Todo> _sortedTodos;
 
   @override
   Widget build(BuildContext context) {
@@ -33,57 +33,23 @@ class _TodoListPageState extends State<TodoListPage> {
             if (state.todos.isEmpty) {
               return const Center(child: Text('No todos available. Add some!'));
             }
-            return ListView.builder(
-              itemCount: state.todos.length,
-              itemBuilder: (context, index) {
-                final todo = state.todos[index];
-                return TodoItemWidget(
-                  key: ValueKey(todo.id), 
-                  todo: todo,
-                  onAdd: (title, description) {
-                  context.read<TodoBloc>().add(AddTodoEvent(title, description));
-                },
-                  onUpdate: (updatedTodo) {
-                    context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
-                  },
-                );
+            return AnimatedList(
+              key: _listKey,
+              initialItemCount: _sortedTodos.length,
+              itemBuilder: (context, index, animation) {
+                return _buildItem(_sortedTodos[index], animation, index);
               },
             );
           } else if (state is TodoError) {
-            // Show a snackbar with the error message
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
               );
             });
-            // Return the last known good state or an empty list
-            return const Center(child: Text('An error occurred. Please try again.'));
+            return const Center(
+                child: Text('An error occurred. Please try again.'));
           }
-          // Initial loading state
           return const Center(child: CircularProgressIndicator());
-        //   if (state is TodoLoading) {
-        //     return const Center(child: CircularProgressIndicator());
-        //   } else if (state is TodoLoaded) {
-        //     if (state.todos.isEmpty) {
-        //       return const Center(child: Text('No todos available. Add some!'));
-        //     }
-        //     return ListView.builder(
-        //       itemCount: state.todos.length,
-        //       itemBuilder: (context, index) {
-        //         final todo = state.todos[index];
-        //         return TodoItemWidget(todo: todo,
-        //         onAdd: (addedTodo) {
-        //           context.read<TodoBloc>().add(UpdateTodoEvent(addedTodo));
-        //         },
-        //         onUpdate: (updatedTodo) {
-        //       context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
-        //     },);
-        //       },
-        //     );
-        //   } else if (state is TodoError) {
-        //     return Center(child: Text(state.message));
-        //   }
-        //   return const Center(child: Text('Something went wrong.'));
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -94,7 +60,7 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-   Widget _buildItem(Todo todo, Animation<double> animation, int index) {
+  Widget _buildItem(Todo todo, Animation<double> animation, int index) {
     return SizeTransition(
       sizeFactor: animation,
       child: TodoItemWidget(
@@ -112,19 +78,73 @@ class _TodoListPageState extends State<TodoListPage> {
   }
 
   void _updateSortedTodos(List<Todo> todos) {
-    setState(() {
-      _sortedTodos = List.from(todos)
-        ..sort((a, b) {
-          if (a.completed == b.completed) {
-            return b.id.compareTo(a.id); // Newest uncompleted at the top
+    final newSortedTodos = List<Todo>.from(todos)
+      ..sort((a, b) {
+        if (a.completed == b.completed) {
+          if (a.completed) {
+            // For completed items, sort by completion time (newest first)
+            return b.id.compareTo(a.id);
+          } else {
+            // For uncompleted items, sort by creation time (newest first)
+            return b.id.compareTo(a.id);
           }
-          return a.completed ? 1 : -1;
-        });
-    });
+        }
+        return a.completed ? 1 : -1;
+      });
+
+    if (_sortedTodos.isEmpty) {
+      setState(() {
+        _sortedTodos = newSortedTodos;
+      });
+    } else {
+      for (int i = 0; i < newSortedTodos.length; i++) {
+        final newTodo = newSortedTodos[i];
+        final oldIndex = _sortedTodos.indexWhere((t) => t.id == newTodo.id);
+        if (oldIndex == -1) {
+          // New todo added
+          _sortedTodos.insert(i, newTodo);
+          _listKey.currentState?.insertItem(i);
+        } else if (oldIndex != i) {
+          // Todo position changed
+          final todo = _sortedTodos.removeAt(oldIndex);
+          _listKey.currentState?.removeItem(
+            oldIndex,
+            (context, animation) => _buildItem(todo, animation, oldIndex),
+          );
+          _sortedTodos.insert(i, newTodo);
+          _listKey.currentState?.insertItem(i);
+        } else {
+          // Update the todo in place
+          _sortedTodos[i] = newTodo;
+        }
+      }
+      // Remove any todos that no longer exist
+      for (int i = _sortedTodos.length - 1; i >= 0; i--) {
+        if (!newSortedTodos.contains(_sortedTodos[i])) {
+          final todo = _sortedTodos.removeAt(i);
+          _listKey.currentState?.removeItem(
+            i,
+            (context, animation) => _buildItem(todo, animation, i),
+          );
+        }
+      }
+    }
   }
 
   void _handleTodoUpdate(Todo updatedTodo, int oldIndex) {
-    final newIndex = _sortedTodos.indexWhere((todo) => todo.id == updatedTodo.id);
+    int newIndex;
+    if (updatedTodo.completed) {
+      // Find the index of the first completed item
+      newIndex = _sortedTodos.indexWhere((todo) => todo.completed);
+      if (newIndex == -1) {
+        // If no completed items, append to the end
+        newIndex = _sortedTodos.length;
+      }
+    } else {
+      // For uncompleted items, move to the top
+      newIndex = 0;
+    }
+
     if (oldIndex != newIndex) {
       final item = _sortedTodos.removeAt(oldIndex);
       _listKey.currentState?.removeItem(
@@ -133,7 +153,10 @@ class _TodoListPageState extends State<TodoListPage> {
         duration: const Duration(milliseconds: 300),
       );
       _sortedTodos.insert(newIndex, updatedTodo);
-      _listKey.currentState?.insertItem(newIndex, duration: const Duration(milliseconds: 300));
+      _listKey.currentState
+          ?.insertItem(newIndex, duration: const Duration(milliseconds: 300));
+    } else {
+      _sortedTodos[newIndex] = updatedTodo;
     }
   }
 
@@ -155,7 +178,8 @@ class _TodoListPageState extends State<TodoListPage> {
             ),
             TextField(
               controller: descriptionController,
-              decoration: const InputDecoration(hintText: 'Enter todo description'),
+              decoration:
+                  const InputDecoration(hintText: 'Enter todo description'),
               maxLines: 3,
             ),
           ],
