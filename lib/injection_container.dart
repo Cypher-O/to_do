@@ -17,6 +17,8 @@ import 'package:to_do/data/datasources/todo_remote_data_source.dart';
 import 'package:to_do/data/repositories/todo_repository_impl.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -26,8 +28,13 @@ Future<void> init() async {
     () => AuthBloc(
       loginUseCase: sl(),
       registerUseCase: sl(),
+      secureStorage: sl(),
     ),
   );
+
+  // External
+  sl.registerLazySingleton(() => http.Client());
+  sl.registerLazySingleton(() => const FlutterSecureStorage());
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -51,6 +58,7 @@ Future<void> init() async {
       addTodo: sl(),
       updateTodo: sl(),
       deleteTodo: sl(),
+      secureStorage: sl(),
     ),
   );
 
@@ -69,7 +77,4 @@ Future<void> init() async {
   sl.registerLazySingleton<TodoRemoteDataSource>(
     () => TodoRemoteDataSourceImpl(client: sl()),
   );
-
-  // External
-  sl.registerLazySingleton(() => http.Client());
 }

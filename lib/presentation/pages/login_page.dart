@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
+import 'package:to_do/presentation/pages/todo_list_page.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -19,10 +22,16 @@ class LoginPage extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Login Successful')),
             );
+            // Navigate to TodoListPage on successful login
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const TodoListPage()),
+            );
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.error)),
             );
+            log("Error occurred: ${state.error}");
           }
         },
         child: Padding(

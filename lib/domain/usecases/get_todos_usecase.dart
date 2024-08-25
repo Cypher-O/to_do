@@ -8,7 +8,7 @@ class GetTodosUseCase {
 
   GetTodosUseCase(this.repository);
 
-  Future<Either<Failure, List<Todo>>> call() async {
-    return await repository.getTodos();
+  Future<Either<Failure, List<Todo>>> call(String token) async {
+    return await repository.getTodos(token);
   }
 }

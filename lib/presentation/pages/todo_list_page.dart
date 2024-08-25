@@ -9,12 +9,18 @@ class TodoListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Todo List')),
+      appBar: AppBar(
+        title: const Text('Todo List'),
+        centerTitle: true,
+      ),
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {
           if (state is TodoLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is TodoLoaded) {
+            if (state.todos.isEmpty) {
+              return const Center(child: Text('No todos available. Add some!'));
+            }
             return ListView.builder(
               itemCount: state.todos.length,
               itemBuilder: (context, index) {
@@ -25,25 +31,39 @@ class TodoListPage extends StatelessWidget {
           } else if (state is TodoError) {
             return Center(child: Text(state.message));
           }
-          return const Center(child: Text('No todos yet'));
+          return const Center(child: Text('Something went wrong.'));
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTodoDialog(context),
         child: const Icon(Icons.add),
+        tooltip: 'Add Todo',
       ),
     );
   }
 
   void _showAddTodoDialog(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Add Todo'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Enter todo title'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(hintText: 'Enter todo title'),
+              autofocus: true,
+            ),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(hintText: 'Enter todo description'),
+              maxLines: 3,
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -52,8 +72,11 @@ class TodoListPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              if (controller.text.isNotEmpty) {
-                context.read<TodoBloc>().add(AddTodoEvent(controller.text));
+              final title = titleController.text;
+              final description = descriptionController.text;
+
+              if (title.isNotEmpty) {
+                context.read<TodoBloc>().add(AddTodoEvent(title, description));
                 Navigator.pop(context);
               }
             },
@@ -64,3 +87,72 @@ class TodoListPage extends StatelessWidget {
     );
   }
 }
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
+// import 'package:to_do/presentation/widgets/todo_item_widget.dart';
+
+// class TodoListPage extends StatelessWidget {
+//   const TodoListPage({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('Todo List')),
+//       body: BlocBuilder<TodoBloc, TodoState>(
+//         builder: (context, state) {
+//           if (state is TodoLoading) {
+//             return const Center(child: CircularProgressIndicator());
+//           } else if (state is TodoLoaded) {
+//             return ListView.builder(
+//               itemCount: state.todos.length,
+//               itemBuilder: (context, index) {
+//                 final todo = state.todos[index];
+//                 return TodoItemWidget(todo: todo);
+//               },
+//             );
+//           } else if (state is TodoError) {
+//             return Center(child: Text(state.message));
+//           }
+//           return const Center(child: Text('No todos yet'));
+//         },
+//       ),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: () => _showAddTodoDialog(context),
+//         child: const Icon(Icons.add),
+//       ),
+//     );
+//   }
+
+//   void _showAddTodoDialog(BuildContext context) {
+//     final TextEditingController controller = TextEditingController();
+//     showDialog(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text('Add Todo'),
+//         content: TextField(
+//           controller: controller,
+//           decoration: const InputDecoration(hintText: 'Enter todo title'),
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('Cancel'),
+//           ),
+//           TextButton(
+//             onPressed: () {
+//               if (controller.text.isNotEmpty) {
+//                 context.read<TodoBloc>().add(AddTodoEvent(controller.text));
+//                 Navigator.pop(context);
+//               }
+//             },
+//             child: const Text('Add'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

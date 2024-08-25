@@ -11,9 +11,9 @@ class TodoRepositoryImpl implements TodoRepository {
   TodoRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, List<Todo>>> getTodos() async {
+  Future<Either<Failure, List<Todo>>> getTodos(String token) async {
     try {
-      final todos = await remoteDataSource.getTodos();
+      final todos = await remoteDataSource.getTodos(token);
       return Right(todos);
     } on ServerFailure catch (failure) {
       return Left(failure);
@@ -21,9 +21,9 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<Either<Failure, Todo>> addTodo(String title) async {
+  Future<Either<Failure, Todo>> addTodo(String title, String description, String token) async {
     try {
-      final todo = await remoteDataSource.addTodo(title);
+      final todo = await remoteDataSource.addTodo(title, description, token);
       return Right(todo);
     } on ServerFailure catch (failure) {
       return Left(failure);
@@ -31,9 +31,9 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<Either<Failure, Todo>> updateTodo(Todo todo) async {
+  Future<Either<Failure, Todo>> updateTodo(Todo todo, String token) async {
     try {
-      final updatedTodo = await remoteDataSource.updateTodo(todo as TodoModel);
+      final updatedTodo = await remoteDataSource.updateTodo(todo as TodoModel, token);
       return Right(updatedTodo);
     } on ServerFailure catch (failure) {
       return Left(failure);
@@ -41,9 +41,9 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteTodo(int id) async {
+  Future<Either<Failure, void>> deleteTodo(String id, String token) async {
     try {
-      await remoteDataSource.deleteTodo(id);
+      await remoteDataSource.deleteTodo(id, token);
       return const Right(null);
     } on ServerFailure catch (failure) {
       return Left(failure);

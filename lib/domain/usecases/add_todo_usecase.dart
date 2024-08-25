@@ -8,7 +8,7 @@ class AddTodoUseCase {
 
   AddTodoUseCase(this.repository);
 
-  Future<Either<Failure, Todo>> call(String title) async {
-    return await repository.addTodo(title);
+  Future<Either<Failure, Todo>> call(String title, String description, String token) async {
+    return await repository.addTodo(title, description, token);
   }
 }

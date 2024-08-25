@@ -11,11 +11,12 @@ class LoadTodos extends TodoEvent {}
 
 class AddTodoEvent extends TodoEvent {
   final String title;
+  final String description;
 
-  const AddTodoEvent(this.title);
+  const AddTodoEvent(this.title, this.description);
 
   @override
-  List<Object> get props => [title];
+  List<Object> get props => [title, description];
 }
 
 class UpdateTodoEvent extends TodoEvent {
@@ -28,7 +29,7 @@ class UpdateTodoEvent extends TodoEvent {
 }
 
 class DeleteTodoEvent extends TodoEvent {
-  final int id;
+  final String id;
 
   const DeleteTodoEvent(this.id);
 

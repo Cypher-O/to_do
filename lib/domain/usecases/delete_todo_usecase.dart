@@ -7,7 +7,7 @@ class DeleteTodoUseCase {
 
   DeleteTodoUseCase(this.repository);
 
-  Future<Either<Failure, void>> call(int id) async {
-    return await repository.deleteTodo(id);
+  Future<Either<Failure, void>> call(String id, String token) async {
+    return await repository.deleteTodo(id, token);
   }
 }
