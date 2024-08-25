@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/domain/entities/todo.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 import 'package:to_do/presentation/widgets/todo_item_widget.dart';
 
-class TodoListPage extends StatelessWidget {
+class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
+
+  @override
+  State<TodoListPage> createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
+   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+   late List<Todo> _sortedTodos;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +22,12 @@ class TodoListPage extends StatelessWidget {
         title: const Text('Todo List'),
         centerTitle: true,
       ),
-      body: BlocBuilder<TodoBloc, TodoState>(
+      body: BlocConsumer<TodoBloc, TodoState>(
+        listener: (context, state) {
+          if (state is TodoLoaded) {
+            _updateSortedTodos(state.todos);
+          }
+        },
         builder: (context, state) {
           if (state is TodoLoaded) {
             if (state.todos.isEmpty) {
@@ -78,6 +92,49 @@ class TodoListPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+   Widget _buildItem(Todo todo, Animation<double> animation, int index) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: TodoItemWidget(
+        key: ValueKey(todo.id),
+        todo: todo,
+        onAdd: (title, description) {
+          context.read<TodoBloc>().add(AddTodoEvent(title, description));
+        },
+        onUpdate: (updatedTodo) {
+          context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
+          _handleTodoUpdate(updatedTodo, index);
+        },
+      ),
+    );
+  }
+
+  void _updateSortedTodos(List<Todo> todos) {
+    setState(() {
+      _sortedTodos = List.from(todos)
+        ..sort((a, b) {
+          if (a.completed == b.completed) {
+            return b.id.compareTo(a.id); // Newest uncompleted at the top
+          }
+          return a.completed ? 1 : -1;
+        });
+    });
+  }
+
+  void _handleTodoUpdate(Todo updatedTodo, int oldIndex) {
+    final newIndex = _sortedTodos.indexWhere((todo) => todo.id == updatedTodo.id);
+    if (oldIndex != newIndex) {
+      final item = _sortedTodos.removeAt(oldIndex);
+      _listKey.currentState?.removeItem(
+        oldIndex,
+        (context, animation) => _buildItem(item, animation, oldIndex),
+        duration: const Duration(milliseconds: 300),
+      );
+      _sortedTodos.insert(newIndex, updatedTodo);
+      _listKey.currentState?.insertItem(newIndex, duration: const Duration(milliseconds: 300));
+    }
   }
 
   void _showAddTodoDialog(BuildContext context) {
