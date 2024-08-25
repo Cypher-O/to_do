@@ -53,7 +53,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
         emit(const TodoError('Not authenticated'));
         return;
       }
-      final result = await addTodo(event.title, event.description,body: jsonEncode({'title': title, 'description': description}), token);
+      final result = await addTodo(event.title, event.description, token);
       result.fold(
         (failure) => emit(TodoError(failure.message)),
         (newTodo) => emit(TodoLoaded([...currentState.todos, newTodo])),
