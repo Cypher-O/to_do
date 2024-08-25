@@ -15,9 +15,7 @@ class TodoListPage extends StatelessWidget {
       ),
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {
-          if (state is TodoLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is TodoLoaded) {
+          if (state is TodoLoaded) {
             if (state.todos.isEmpty) {
               return const Center(child: Text('No todos available. Add some!'));
             }
@@ -25,19 +23,53 @@ class TodoListPage extends StatelessWidget {
               itemCount: state.todos.length,
               itemBuilder: (context, index) {
                 final todo = state.todos[index];
-                return TodoItemWidget(todo: todo,
-                onAdd: (addedTodo) {
-                  context.read<TodoBloc>().add(UpdateTodoEvent(addedTodo));
+                return TodoItemWidget(
+                  key: ValueKey(todo.id), 
+                  todo: todo,
+                  onAdd: (title, description) {
+                  context.read<TodoBloc>().add(AddTodoEvent(title, description));
                 },
-                onUpdate: (updatedTodo) {
-              context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
-            },);
+                  onUpdate: (updatedTodo) {
+                    context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
+                  },
+                );
               },
             );
           } else if (state is TodoError) {
-            return Center(child: Text(state.message));
+            // Show a snackbar with the error message
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            });
+            // Return the last known good state or an empty list
+            return const Center(child: Text('An error occurred. Please try again.'));
           }
-          return const Center(child: Text('Something went wrong.'));
+          // Initial loading state
+          return const Center(child: CircularProgressIndicator());
+        //   if (state is TodoLoading) {
+        //     return const Center(child: CircularProgressIndicator());
+        //   } else if (state is TodoLoaded) {
+        //     if (state.todos.isEmpty) {
+        //       return const Center(child: Text('No todos available. Add some!'));
+        //     }
+        //     return ListView.builder(
+        //       itemCount: state.todos.length,
+        //       itemBuilder: (context, index) {
+        //         final todo = state.todos[index];
+        //         return TodoItemWidget(todo: todo,
+        //         onAdd: (addedTodo) {
+        //           context.read<TodoBloc>().add(UpdateTodoEvent(addedTodo));
+        //         },
+        //         onUpdate: (updatedTodo) {
+        //       context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
+        //     },);
+        //       },
+        //     );
+        //   } else if (state is TodoError) {
+        //     return Center(child: Text(state.message));
+        //   }
+        //   return const Center(child: Text('Something went wrong.'));
         },
       ),
       floatingActionButton: FloatingActionButton(

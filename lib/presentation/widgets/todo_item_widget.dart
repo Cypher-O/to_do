@@ -5,7 +5,8 @@ import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 
 class TodoItemWidget extends StatelessWidget {
   final Todo todo;
-  final Function(Todo) onUpdate, onAdd;
+  final Function(String, String)? onAdd;
+  final Function(Todo) onUpdate;
 
   const TodoItemWidget(
       {super.key,
@@ -69,8 +70,7 @@ class TodoItemWidget extends StatelessWidget {
 
   void _showEditTodoDialog(BuildContext context) {
     final titleController = TextEditingController(text: todo.title);
-    final descriptionController =
-        TextEditingController(text: todo.description);
+    final descriptionController = TextEditingController(text: todo.description);
 
     showDialog(
       context: context,
