@@ -70,11 +70,15 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
         emit(const TodoError('Not authenticated'));
         return;
       }
+
       final result = await updateTodo(event.updatedTodo, token);
       result.fold(
         (failure) => emit(TodoError(failure.message)),
-        (updatedTodo) => emit(TodoLoaded(currentState.todos.map((todo) =>
-            todo.id == updatedTodo.id ? updatedTodo : todo).toList())),
+        (updatedTodo) {
+          final updatedTodos = currentState.todos.map((todo) =>
+              todo.id == updatedTodo.id ? updatedTodo : todo).toList();
+          emit(TodoLoaded(updatedTodos));
+        },
       );
     }
   }

@@ -17,6 +17,15 @@ class TodoModel extends Todo {
     );
   }
 
+  factory TodoModel.fromTodo(Todo todo) {
+    return TodoModel(
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      completed: todo.completed,
+    );
+  }
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,

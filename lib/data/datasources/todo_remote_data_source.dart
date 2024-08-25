@@ -54,15 +54,20 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
       );
 
       if (response.statusCode == 201) {
-        return TodoModel.fromJson(json.decode(response.body));
+      final Map<String, dynamic> responseBody = json.decode(response.body);
+      if (responseBody['data'] != null) {
+        return TodoModel.fromJson(responseBody['data']);
       } else {
-        throw ServerFailure(
-            json.decode(response.body)['message'] ?? 'Unknown error occurred');
+        throw const ServerFailure('Invalid response format');
       }
-    } catch (e) {
-      throw ServerFailure(e.toString());
+    } else {
+      throw ServerFailure(
+          json.decode(response.body)['message'] ?? 'Unknown error occurred');
     }
+  } catch (e) {
+    throw ServerFailure(e.toString());
   }
+}
 
   @override
   Future<TodoModel> updateTodo(TodoModel todo, String token) async {
@@ -76,16 +81,21 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
         },
       );
 
-      if (response.statusCode == 200) {
-        return TodoModel.fromJson(json.decode(response.body));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody = json.decode(response.body);
+      if (responseBody['data'] != null) {
+        return TodoModel.fromJson(responseBody['data']);
       } else {
-        throw ServerFailure(
-            json.decode(response.body)['message'] ?? 'Unknown error occurred');
+        throw const ServerFailure('Invalid response format');
       }
-    } catch (e) {
-      throw ServerFailure(e.toString());
+    } else {
+      throw ServerFailure(
+          json.decode(response.body)['message'] ?? 'Unknown error occurred');
     }
+  } catch (e) {
+    throw ServerFailure(e.toString());
   }
+}
 
   @override
   Future<void> deleteTodo(String id, String token) async {

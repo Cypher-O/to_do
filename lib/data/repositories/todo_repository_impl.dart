@@ -33,7 +33,7 @@ class TodoRepositoryImpl implements TodoRepository {
   @override
   Future<Either<Failure, Todo>> updateTodo(Todo todo, String token) async {
     try {
-      final updatedTodo = await remoteDataSource.updateTodo(todo as TodoModel, token);
+      final updatedTodo = await remoteDataSource.updateTodo(TodoModel.fromTodo(todo), token);
       return Right(updatedTodo);
     } on ServerFailure catch (failure) {
       return Left(failure);
