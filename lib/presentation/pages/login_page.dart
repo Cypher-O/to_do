@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
+import 'package:to_do/presentation/pages/register_page.dart';
 import 'package:to_do/presentation/pages/todo_list_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -60,6 +61,16 @@ class LoginPage extends StatelessWidget {
                 },
                 child: const Text('Login'),
               ),
+               TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RegisterPage()),
+                      );
+                    },
+                    child: const Text('Don\'t have an account? Register here'),
+                  ),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
+import 'package:to_do/presentation/pages/login_page.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -51,6 +52,16 @@ class RegisterPage extends StatelessWidget {
                 },
                 child: const Text('Register'),
               ),
+               TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LoginPage()),
+                      );
+                    },
+                    child: const Text('Already have an account? Login'),
+                  ),
             ],
           ),
         ),
