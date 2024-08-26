@@ -70,11 +70,6 @@ class _TodoListPageState extends State<TodoListPage> {
           floatingActionButton: AnimatedFAB(
             onPressedCallback: () => _showAddTodoDialog(context),
           ),
-          // FloatingActionButton(
-          //   onPressed: () => _showAddTodoDialog(context),
-          //   tooltip: 'Add Todo',
-          //   child: const Icon(Icons.add),
-          // ),
         );
       },
     );
@@ -180,49 +175,105 @@ class _TodoListPageState extends State<TodoListPage> {
     }
   }
 
-  void _showAddTodoDialog(BuildContext context) {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
+void _showAddTodoDialog(BuildContext context) {
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Todo'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(hintText: 'Enter todo title'),
-              autofocus: true,
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration:
-                  const InputDecoration(hintText: 'Enter todo description'),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final title = titleController.text;
-              final description = descriptionController.text;
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          // Function to check if both fields are non-empty
+          bool isButtonEnabled() {
+            return titleController.text.isNotEmpty &&
+                   descriptionController.text.isNotEmpty;
+          }
 
-              if (title.isNotEmpty) {
-                context.read<TodoBloc>().add(AddTodoEvent(title, description));
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Text(
+              'Add Todo',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter todo title',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  autofocus: true,
+                  onChanged: (value) {
+                    setState(() {}); // Update button state on title change
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter todo description',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {}); // Update button state on description change
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: isButtonEnabled()
+                    ? () {
+                        final title = titleController.text;
+                        final description = descriptionController.text;
+
+                        context.read<TodoBloc>().add(
+                              AddTodoEvent(title, description),
+                            );
+                        Navigator.pop(context);
+                      }
+                    : null, // Disable button if either field is empty
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Add',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 }

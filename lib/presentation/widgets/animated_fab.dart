@@ -53,7 +53,7 @@ class AnimatedFABState extends State<AnimatedFAB>
     if (_animationController.isCompleted || _animationController.isDismissed) {
       _animationController.reset();
       _animationController.forward();
-      widget.onPressedCallback(); // Call the passed callback
+      widget.onPressedCallback();
     }
   }
 
@@ -64,10 +64,13 @@ class AnimatedFABState extends State<AnimatedFAB>
       builder: (context, child) {
         return Transform.rotate(
           angle: _wiggleAnimation.value,
-          child: FloatingActionButton(
-            onPressed: _onPressed,
-            backgroundColor: Colors.green,
-            child: const Icon(Icons.add, color: Colors.black),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 15.0, right: 10.0),
+            child: FloatingActionButton(
+              onPressed: _onPressed,
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.add, color: Colors.black),
+            ),
           ),
         );
       },

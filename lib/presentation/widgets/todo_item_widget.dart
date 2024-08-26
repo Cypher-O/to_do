@@ -1,73 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:to_do/domain/entities/todo.dart';
-// import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
-
-// class TodoItemWidget extends StatelessWidget {
-//   final Todo todo;
-//   final Function(String, String)? onAdd;
-//   final Function(Todo) onUpdate;
-
-//   const TodoItemWidget(
-//       {super.key,
-//       required this.todo,
-//       required this.onUpdate,
-//       required this.onAdd});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListTile(
-//       title: Text(
-//         todo.title,
-//         style: TextStyle(
-//           decoration: todo.completed ? TextDecoration.lineThrough : null,
-//         ),
-//       ),
-//       subtitle: Text(todo.description),
-//       leading: Checkbox(
-//         value: todo.completed,
-//         onChanged: (bool? value) {
-//           if (value != null) {
-//             final updatedTodo = Todo(
-//               id: todo.id,
-//               title: todo.title,
-//               description: todo.description,
-//               completed: value,
-//             );
-//             onUpdate(updatedTodo);
-//           }
-//         },
-//         // onChanged: (bool? value) {
-//         //   context.read<TodoBloc>().add(
-//         //         UpdateTodoEvent(
-//         //           Todo(
-//         //             id: todo.id,
-//         //             title: todo.title,
-//         //             description: todo.description,
-//         //             completed: value ?? false,
-//         //           ),
-//         //         ),
-//         //       );
-//         // },
-//       ),
-//       trailing: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           IconButton(
-//             icon: const Icon(Icons.edit, color: Colors.blue),
-//             onPressed: () => _showEditTodoDialog(context),
-//           ),
-//           IconButton(
-//             icon: const Icon(Icons.delete, color: Colors.red),
-//             onPressed: () {
-//               context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/domain/entities/todo.dart';
@@ -159,54 +89,108 @@ class TodoItemWidget extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Todo'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(hintText: 'Update todo title'),
-              autofocus: true,
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration:
-                  const InputDecoration(hintText: 'Update todo description'),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final newTitle = titleController.text;
-              final newDescription = descriptionController.text;
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void updateButtonState() {
+              setState(() {});
+            }
 
-              if (newTitle.isNotEmpty &&
-                  (newTitle != todo.title ||
-                      newDescription != todo.description)) {
-                context.read<TodoBloc>().add(
-                      UpdateTodoEvent(
-                        Todo(
-                          id: todo.id,
-                          title: newTitle,
-                          description: newDescription,
-                          completed: todo.completed,
-                        ),
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                'Edit Todo',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Update todo title',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+                    ),
+                    autofocus: true,
+                    onChanged: (value) {
+                      updateButtonState(); // Update state on title change
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                      hintText: 'Update todo description',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    maxLines: 3,
+                    onChanged: (value) {
+                      updateButtonState(); // Update state on description change
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: titleController.text.isNotEmpty &&
+                          (titleController.text != todo.title ||
+                              descriptionController.text != todo.description)
+                      ? () {
+                          final newTitle = titleController.text;
+                          final newDescription = descriptionController.text;
+
+                          if (newTitle.isNotEmpty) {
+                            context.read<TodoBloc>().add(
+                                  UpdateTodoEvent(
+                                    Todo(
+                                      id: todo.id,
+                                      title: newTitle,
+                                      description: newDescription,
+                                      completed: todo.completed,
+                                    ),
+                                  ),
+                                );
+                            Navigator.pop(context);
+                          }
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
