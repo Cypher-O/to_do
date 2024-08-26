@@ -44,20 +44,6 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
     }
   }
 
-  //     if (response.statusCode == 200) {
-  //       // final List<dynamic> todoJson = json.decode(response.body);
-  //       final Map<String, dynamic> responseBody = json.decode(response.body);
-  //       final List<dynamic> todoJson = responseBody['data'];
-  //       return todoJson.map((json) => TodoModel.fromJson(json)).toList();
-  //     } else {
-  //       throw ServerFailure(
-  //           json.decode(response.body)['message'] ?? 'Unknown error occurred');
-  //     }
-  //   } catch (e) {
-  //     throw ServerFailure(e.toString());
-  //   }
-  // }
-
   @override
   Future<TodoModel> addTodo(
       String title, String description, String token) async {

@@ -27,7 +27,6 @@ class _TodoListPageState extends State<TodoListPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            // title: const Text('Todo List'),
             title: state is TodoLoaded && state.todos.isNotEmpty
                 ? Text('Hi, ${state.todos.first.username}')
                 : const Text('Todo List'),
@@ -144,88 +143,6 @@ class _TodoListPageState extends State<TodoListPage> {
       }
     }
   }
-
-  // void _updateSortedTodos(List<Todo> todos) {
-  //   final newSortedTodos = List<Todo>.from(todos)
-  //     ..sort((a, b) {
-  //       if (a.completed == b.completed) {
-  //         // Sort by ID so that newer items appear first
-  //         return b.id.compareTo(a.id);
-  //       }
-  //       return a.completed ? 1 : -1; // Unchecked items at the top
-  //     });
-
-  //   if (_sortedTodos.isEmpty) {
-  //     setState(() {
-  //       _sortedTodos = newSortedTodos;
-  //     });
-  //   } else {
-  //     for (int i = 0; i < newSortedTodos.length; i++) {
-  //       final newTodo = newSortedTodos[i];
-  //       final oldIndex = _sortedTodos.indexWhere((t) => t.id == newTodo.id);
-  //       if (oldIndex == -1) {
-  //         // New todo added
-  //         _sortedTodos.insert(i, newTodo);
-  //         _listKey.currentState?.insertItem(i);
-  //       } else if (oldIndex != i) {
-  //         // Todo position changed
-  //         final todo = _sortedTodos.removeAt(oldIndex);
-  //         _listKey.currentState?.removeItem(
-  //           oldIndex,
-  //           (context, animation) => _buildItem(todo, animation, oldIndex),
-  //         );
-  //         _sortedTodos.insert(i, newTodo);
-  //         _listKey.currentState?.insertItem(i);
-  //       } else {
-  //         // Update the todo in place
-  //         _sortedTodos[i] = newTodo;
-  //       }
-  //     }
-  //     // Remove any todos that no longer exist
-  //     for (int i = _sortedTodos.length - 1; i >= 0; i--) {
-  //       if (!newSortedTodos.contains(_sortedTodos[i])) {
-  //         final todo = _sortedTodos.removeAt(i);
-  //         _listKey.currentState?.removeItem(
-  //           i,
-  //           (context, animation) => _buildItem(todo, animation, i),
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
-
-// void _handleTodoUpdate(Todo updatedTodo, int oldIndex) {
-//     int newIndex;
-
-//     if (updatedTodo.completed) {
-//         // Move below the last checked item
-//         newIndex = _sortedTodos.indexWhere((todo) => !todo.completed);
-//         if (newIndex == -1) {
-//             // If all items are completed, add to the end
-//             newIndex = _sortedTodos.length;
-//         }
-//     } else {
-//         // Move to the top of the unchecked list
-//         newIndex = _sortedTodos.indexWhere((todo) => !todo.completed);
-//         if (newIndex == -1 || newIndex > oldIndex) {
-//             newIndex = 0;
-//         }
-//     }
-
-//     if (oldIndex != newIndex) {
-//         final item = _sortedTodos.removeAt(oldIndex);
-//         _listKey.currentState?.removeItem(
-//           oldIndex,
-//           (context, animation) => _buildItem(item, animation, oldIndex),
-//           duration: const Duration(milliseconds: 300),
-//         );
-//         _sortedTodos.insert(newIndex, updatedTodo);
-//         _listKey.currentState
-//             ?.insertItem(newIndex, duration: const Duration(milliseconds: 300));
-//     } else {
-//         _sortedTodos[newIndex] = updatedTodo;
-//     }
-// }
 
   void _handleTodoUpdate(Todo updatedTodo, int oldIndex) {
     int newIndex;
