@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/domain/entities/todo.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
+import 'package:to_do/presentation/widgets/animated_fab.dart';
 import 'package:to_do/presentation/widgets/todo_item_widget.dart';
 
 class TodoListPage extends StatefulWidget {
@@ -27,10 +28,13 @@ class _TodoListPageState extends State<TodoListPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: state is TodoLoaded && state.todos.isNotEmpty
-                ? Text('Hi, ${state.todos.first.username}')
-                : const Text('Todo List'),
-            centerTitle: true,
+            // title: state is TodoLoaded && state.todos.isNotEmpty
+            //     ? Text('Hi, ${state.todos.first.username}')
+            //     : const Text('Todo List'),
+            title: Text(state.username.isNotEmpty
+                ? 'Hi, ${state.username}'
+                : 'Todo List'),
+            // centerTitle: true,
           ),
           body: BlocConsumer<TodoBloc, TodoState>(
             listener: (context, state) {
@@ -63,11 +67,14 @@ class _TodoListPageState extends State<TodoListPage> {
               return const Center(child: CircularProgressIndicator());
             },
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => _showAddTodoDialog(context),
-            tooltip: 'Add Todo',
-            child: const Icon(Icons.add),
+          floatingActionButton: AnimatedFAB(
+            onPressedCallback: () => _showAddTodoDialog(context),
           ),
+          // FloatingActionButton(
+          //   onPressed: () => _showAddTodoDialog(context),
+          //   tooltip: 'Add Todo',
+          //   child: const Icon(Icons.add),
+          // ),
         );
       },
     );
