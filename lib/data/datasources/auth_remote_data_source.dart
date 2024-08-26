@@ -6,7 +6,7 @@ import 'package:to_do/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String email, String password);
+  Future<UserModel> register(String username, String email, String password);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -39,11 +39,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> register(String email, String password) async {
+  Future<UserModel> register(String username, String email, String password) async {
     try {
       final response = await client.post(
         Uri.parse('${ApiConstants.baseUrl}${ApiConstants.register}'),
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'username': username, 'email': email, 'password': password}),
         headers: {'Content-Type': 'application/json'},
       );
 

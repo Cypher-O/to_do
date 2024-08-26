@@ -43,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    final result = await registerUseCase(event.email, event.password);
+    final result = await registerUseCase(event.username, event.email, event.password);
     await result.fold(
       (failure) async => emit(AuthFailure(failure.message)),
       (user) async {
