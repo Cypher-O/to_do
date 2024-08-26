@@ -6,6 +6,7 @@ class TodoModel extends Todo {
     required super.title,
     required super.description,
     required super.completed,
+    required super.username,
   });
 
   factory TodoModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,7 @@ class TodoModel extends Todo {
       title: json['title'],
       description: json['description'],
       completed: json['completed'],
+      username: json['username'] ?? ''
     );
   }
 
@@ -23,6 +25,7 @@ class TodoModel extends Todo {
       title: todo.title,
       description: todo.description,
       completed: todo.completed,
+      username: todo.username, 
     );
   }
   
@@ -32,6 +35,7 @@ class TodoModel extends Todo {
       'title': title,
       'description': description,
       'completed': completed,
+      'username': username,
     };
   }
 }

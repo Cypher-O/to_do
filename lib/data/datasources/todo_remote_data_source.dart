@@ -28,10 +28,13 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        // final List<dynamic> todoJson = json.decode(response.body);
         final Map<String, dynamic> responseBody = json.decode(response.body);
-        final List<dynamic> todoJson = responseBody['data'];
-        return todoJson.map((json) => TodoModel.fromJson(json)).toList();
+        final Map<String, dynamic> data = responseBody['data'];
+        final String username = data['username'];
+        final List<dynamic> tasksJson = data['tasks'];
+        return tasksJson
+            .map((json) => TodoModel.fromJson({...json, 'username': username}))
+            .toList();
       } else {
         throw ServerFailure(
             json.decode(response.body)['message'] ?? 'Unknown error occurred');
@@ -41,8 +44,23 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
     }
   }
 
+  //     if (response.statusCode == 200) {
+  //       // final List<dynamic> todoJson = json.decode(response.body);
+  //       final Map<String, dynamic> responseBody = json.decode(response.body);
+  //       final List<dynamic> todoJson = responseBody['data'];
+  //       return todoJson.map((json) => TodoModel.fromJson(json)).toList();
+  //     } else {
+  //       throw ServerFailure(
+  //           json.decode(response.body)['message'] ?? 'Unknown error occurred');
+  //     }
+  //   } catch (e) {
+  //     throw ServerFailure(e.toString());
+  //   }
+  // }
+
   @override
-  Future<TodoModel> addTodo(String title, String description, String token) async {
+  Future<TodoModel> addTodo(
+      String title, String description, String token) async {
     try {
       final response = await client.post(
         Uri.parse('${ApiConstants.baseUrl}${ApiConstants.todos}'),
@@ -54,20 +72,20 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
       );
 
       if (response.statusCode == 201) {
-      final Map<String, dynamic> responseBody = json.decode(response.body);
-      if (responseBody['data'] != null) {
-        return TodoModel.fromJson(responseBody['data']);
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['data'] != null) {
+          return TodoModel.fromJson(responseBody['data']);
+        } else {
+          throw const ServerFailure('Invalid response format');
+        }
       } else {
-        throw const ServerFailure('Invalid response format');
+        throw ServerFailure(
+            json.decode(response.body)['message'] ?? 'Unknown error occurred');
       }
-    } else {
-      throw ServerFailure(
-          json.decode(response.body)['message'] ?? 'Unknown error occurred');
+    } catch (e) {
+      throw ServerFailure(e.toString());
     }
-  } catch (e) {
-    throw ServerFailure(e.toString());
   }
-}
 
   @override
   Future<TodoModel> updateTodo(TodoModel todo, String token) async {
@@ -81,21 +99,21 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
         },
       );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseBody = json.decode(response.body);
-      if (responseBody['data'] != null) {
-        return TodoModel.fromJson(responseBody['data']);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['data'] != null) {
+          return TodoModel.fromJson(responseBody['data']);
+        } else {
+          throw const ServerFailure('Invalid response format');
+        }
       } else {
-        throw const ServerFailure('Invalid response format');
+        throw ServerFailure(
+            json.decode(response.body)['message'] ?? 'Unknown error occurred');
       }
-    } else {
-      throw ServerFailure(
-          json.decode(response.body)['message'] ?? 'Unknown error occurred');
+    } catch (e) {
+      throw ServerFailure(e.toString());
     }
-  } catch (e) {
-    throw ServerFailure(e.toString());
   }
-}
 
   @override
   Future<void> deleteTodo(String id, String token) async {

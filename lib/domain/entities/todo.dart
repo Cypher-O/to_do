@@ -5,9 +5,10 @@ class Todo extends Equatable {
   final String title;
   final String description;
   final bool completed;
+  final String? username; 
 
-  const Todo({required this.id, required this.title, required this.description, required this.completed});
+  const Todo({required this.id, required this.title, required this.description, required this.completed, this.username});
 
   @override
-  List<Object?> get props => [id, title, completed];
+  List<Object?> get props => [id, title, completed, username];
 }
