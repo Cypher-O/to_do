@@ -91,7 +91,8 @@ class TodoItemWidget extends StatelessWidget {
       context: context,
       builder: (context) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (context, setState) 
+          {
             void updateButtonState() {
               setState(() {});
             }
