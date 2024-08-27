@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class AnimatedFAB extends StatefulWidget {
   final VoidCallback onPressedCallback;
@@ -9,67 +10,76 @@ class AnimatedFAB extends StatefulWidget {
   AnimatedFABState createState() => AnimatedFABState();
 }
 
-class AnimatedFABState extends State<AnimatedFAB>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _wiggleAnimation;
+class AnimatedFABState extends State<AnimatedFAB> with TickerProviderStateMixin {
+  late AnimationController _rotationController;
+  late AnimationController _bounceController;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _bounceAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    _animationController = AnimationController(
-      duration: const Duration(
-          milliseconds: 500), // Shorter duration for bounce effect
+    _rotationController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
-    // Define the wiggle animation with a more pronounced bounce effect
-    _wiggleAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 0.1)
-            .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 1.0,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.1, end: -0.1)
-            .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 1.0,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: -0.1, end: 0.05)
-            .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 1.0,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.05, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 1.0,
-      ),
-    ]).animate(_animationController);
+    _bounceController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _rotationAnimation = Tween<double>(begin: 0, end: 2 * math.pi)
+        .animate(CurvedAnimation(parent: _rotationController, curve: Curves.easeInOutBack));
+
+    _bounceAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 1, end: 1.2), weight: 1),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.2, end: 0.9), weight: 1),
+      TweenSequenceItem(tween: Tween<double>(begin: 0.9, end: 1.1), weight: 1),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.1, end: 1), weight: 1),
+    ]).animate(CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut));
+
+    _rotationController.repeat(reverse: true);
+    _bounceController.repeat(reverse: true);
   }
 
   void _onPressed() {
-    if (_animationController.isCompleted || _animationController.isDismissed) {
-      _animationController.reset();
-      _animationController.forward();
-      widget.onPressedCallback();
-    }
+    _rotationController.forward(from: 0);
+    _bounceController.forward(from: 0);
+    widget.onPressedCallback();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _wiggleAnimation,
+      animation: Listenable.merge([_rotationAnimation, _bounceAnimation]),
       builder: (context, child) {
-        return Transform.rotate(
-          angle: _wiggleAnimation.value,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 15.0, right: 10.0),
-            child: FloatingActionButton(
-              onPressed: _onPressed,
-              backgroundColor: Colors.green,
-              child: const Icon(Icons.add, color: Colors.black),
+        return Transform.scale(
+          scale: _bounceAnimation.value,
+          child: Transform.rotate(
+            angle: _rotationAnimation.value,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: FloatingActionButton(
+                onPressed: _onPressed,
+                backgroundColor: Colors.green,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 30),
+              ),
             ),
           ),
         );
@@ -79,7 +89,8 @@ class AnimatedFABState extends State<AnimatedFAB>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _rotationController.dispose();
+    _bounceController.dispose();
     super.dispose();
   }
 }
