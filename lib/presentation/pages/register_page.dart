@@ -50,6 +50,9 @@ class RegisterPage extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
                       TextFormField(
                         controller: _usernameController,
                         decoration: InputDecoration(
