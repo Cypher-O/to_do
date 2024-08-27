@@ -18,6 +18,8 @@ dependencies:
   flutter_secure_storage: ^9.1.0
   http: ^1.1.1
   dartz: ^0.10.1
+  flutter_svg: ^1.0.0
+  animate_do: ^2.1.0
 
   cupertino_icons: ^1.0.8
 
