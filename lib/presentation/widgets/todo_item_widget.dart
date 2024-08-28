@@ -196,6 +196,56 @@
 //   }
 // }
 
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:to_do/domain/entities/todo.dart';
+// import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
+
+// class TodoItemWidget extends StatelessWidget {
+//   final Todo todo;
+//   final Function(String, String)? onAdd;
+//   final Function(Todo) onUpdate;
+
+//   const TodoItemWidget({
+//     Key? key,
+//     required this.todo,
+//     required this.onUpdate,
+//     required this.onAdd,
+//   }) : super(key: key);
+
+//   String capitalizeFirstLetter(String text) {
+//     if (text.isEmpty) return text;
+//     return text[0].toUpperCase() + text.substring(1);
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Dismissible(
+//       key: Key(todo.id),
+//       background: _buildSwipeActionBackground(
+//         color: Colors.green,
+//         icon: Icons.check,
+//         alignment: Alignment.centerLeft,
+//       ),
+//       secondaryBackground: _buildSwipeActionBackground(
+//         color: Colors.red,
+//         icon: Icons.delete,
+//         alignment: Alignment.centerRight,
+//       ),
+//       onDismissed: (direction) {
+//         if (direction == DismissDirection.endToStart) {
+//           context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
+//         } else {
+//           final updatedTodo = Todo(
+//             id: todo.id,
+//             title: todo.title,
+//             description: todo.description,
+//             completed: true,
+//           );
+//           onUpdate(updatedTodo);
+//         }
+//       },
+//       child: Card(
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/domain/entities/todo.dart';
@@ -205,12 +255,14 @@ class TodoItemWidget extends StatelessWidget {
   final Todo todo;
   final Function(String, String)? onAdd;
   final Function(Todo) onUpdate;
+  final Function(Todo, DismissDirection) onDismissed;
 
   const TodoItemWidget({
     Key? key,
     required this.todo,
     required this.onUpdate,
     required this.onAdd,
+    required this.onDismissed,
   }) : super(key: key);
 
   String capitalizeFirstLetter(String text) {
@@ -223,8 +275,8 @@ class TodoItemWidget extends StatelessWidget {
     return Dismissible(
       key: Key(todo.id),
       background: _buildSwipeActionBackground(
-        color: Colors.green,
-        icon: Icons.check,
+        color: todo.completed ? Colors.orange : Colors.green,
+        icon: todo.completed ? Icons.refresh : Icons.check,
         alignment: Alignment.centerLeft,
       ),
       secondaryBackground: _buildSwipeActionBackground(
@@ -232,18 +284,34 @@ class TodoItemWidget extends StatelessWidget {
         icon: Icons.delete,
         alignment: Alignment.centerRight,
       ),
-      onDismissed: (direction) {
+      confirmDismiss: (direction) async {
         if (direction == DismissDirection.endToStart) {
-          context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
-        } else {
-          final updatedTodo = Todo(
-            id: todo.id,
-            title: todo.title,
-            description: todo.description,
-            completed: true,
+          // Delete confirmation
+          return await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Confirm"),
+                content:
+                    const Text("Are you sure you want to delete this item?"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text("CANCEL"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text("DELETE"),
+                  ),
+                ],
+              );
+            },
           );
-          onUpdate(updatedTodo);
         }
+        return true; // Allow dismiss for toggling completion
+      },
+      onDismissed: (direction) {
+        onDismissed(todo, direction);
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -306,9 +374,24 @@ class TodoItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: () => _showEditTodoDialog(context),
+            // trailing: IconButton(
+            //   icon: const Icon(Icons.edit, color: Colors.blue),
+            //   onPressed: () => _showEditTodoDialog(context),
+            // ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () => _showEditTodoDialog(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
+                  },
+                ),
+              ],
             ),
           ),
         ),
@@ -346,8 +429,10 @@ class TodoItemWidget extends StatelessWidget {
     final titleController = TextEditingController(text: todo.title);
     final descriptionController = TextEditingController(text: todo.description);
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -355,97 +440,100 @@ class TodoItemWidget extends StatelessWidget {
               setState(() {});
             }
 
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+            return Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              title: const Text(
-                'Edit Todo',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: titleController,
-                    decoration: InputDecoration(
-                      hintText: 'Update todo title',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Edit Todo',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    autofocus: true,
-                    onChanged: (value) {
-                      updateButtonState();
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: descriptionController,
-                    decoration: InputDecoration(
-                      hintText: 'Update todo description',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        hintText: 'Update todo title',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: const Icon(Icons.title),
                       ),
+                      autofocus: true,
+                      onChanged: (value) {
+                        updateButtonState();
+                      },
                     ),
-                    maxLines: 3,
-                    onChanged: (value) {
-                      updateButtonState();
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: titleController.text.isNotEmpty &&
-                          (titleController.text != todo.title ||
-                              descriptionController.text != todo.description)
-                      ? () {
-                          final newTitle = titleController.text;
-                          final newDescription = descriptionController.text;
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: descriptionController,
+                      decoration: InputDecoration(
+                        hintText: 'Update todo description',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: const Icon(Icons.description),
+                      ),
+                      maxLines: 3,
+                      onChanged: (value) {
+                        updateButtonState();
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: titleController.text.isNotEmpty &&
+                              (titleController.text != todo.title ||
+                                  descriptionController.text !=
+                                      todo.description)
+                          ? () {
+                              final newTitle = titleController.text;
+                              final newDescription = descriptionController.text;
 
-                          if (newTitle.isNotEmpty) {
-                            context.read<TodoBloc>().add(
-                                  UpdateTodoEvent(
-                                    Todo(
-                                      id: todo.id,
-                                      title: newTitle,
-                                      description: newDescription,
-                                      completed: todo.completed,
-                                    ),
-                                  ),
-                                );
-                            Navigator.pop(context);
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
+                              if (newTitle.isNotEmpty) {
+                                context.read<TodoBloc>().add(
+                                      UpdateTodoEvent(
+                                        Todo(
+                                          id: todo.id,
+                                          title: newTitle,
+                                          description: newDescription,
+                                          completed: todo.completed,
+                                        ),
+                                      ),
+                                    );
+                                Navigator.pop(context);
+                              }
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save Todo',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         );
@@ -453,3 +541,115 @@ class TodoItemWidget extends StatelessWidget {
     );
   }
 }
+
+//   void _showEditTodoDialog(BuildContext context) {
+//     final titleController = TextEditingController(text: todo.title);
+//     final descriptionController = TextEditingController(text: todo.description);
+
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return StatefulBuilder(
+//           builder: (context, setState) {
+//             void updateButtonState() {
+//               setState(() {});
+//             }
+
+//             return AlertDialog(
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20),
+//               ),
+//               title: const Text(
+//                 'Edit Todo',
+//                 style: TextStyle(
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black87,
+//                 ),
+//               ),
+//               content: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   TextField(
+//                     controller: titleController,
+//                     decoration: InputDecoration(
+//                       hintText: 'Update todo title',
+//                       border: OutlineInputBorder(
+//                         borderRadius: BorderRadius.circular(12),
+//                       ),
+//                     ),
+//                     autofocus: true,
+//                     onChanged: (value) {
+//                       updateButtonState();
+//                     },
+//                   ),
+//                   const SizedBox(height: 10),
+//                   TextField(
+//                     controller: descriptionController,
+//                     decoration: InputDecoration(
+//                       hintText: 'Update todo description',
+//                       border: OutlineInputBorder(
+//                         borderRadius: BorderRadius.circular(12),
+//                       ),
+//                     ),
+//                     maxLines: 3,
+//                     onChanged: (value) {
+//                       updateButtonState();
+//                     },
+//                   ),
+//                 ],
+//               ),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () => Navigator.pop(context),
+//                   child: const Text(
+//                     'Cancel',
+//                     style: TextStyle(color: Colors.red),
+//                   ),
+//                 ),
+//                 ElevatedButton(
+//                   onPressed: titleController.text.isNotEmpty &&
+//                           (titleController.text != todo.title ||
+//                               descriptionController.text != todo.description)
+//                       ? () {
+//                           final newTitle = titleController.text;
+//                           final newDescription = descriptionController.text;
+
+//                           if (newTitle.isNotEmpty) {
+//                             context.read<TodoBloc>().add(
+//                                   UpdateTodoEvent(
+//                                     Todo(
+//                                       id: todo.id,
+//                                       title: newTitle,
+//                                       description: newDescription,
+//                                       completed: todo.completed,
+//                                     ),
+//                                   ),
+//                                 );
+//                             Navigator.pop(context);
+//                           }
+//                         }
+//                       : null,
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: Colors.green,
+//                     disabledBackgroundColor: Colors.grey.shade300,
+//                     padding: const EdgeInsets.symmetric(
+//                       horizontal: 20,
+//                       vertical: 10,
+//                     ),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+//                   ),
+//                   child: const Text(
+//                     'Save',
+//                     style: TextStyle(color: Colors.white),
+//                   ),
+//                 ),
+//               ],
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
+// }
