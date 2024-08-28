@@ -157,7 +157,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animate_do/animate_do.dart';
 
 class LoginPage extends StatelessWidget {
-  LoginPage({Key? key}) : super(key: key);
+  LoginPage({super.key});
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();

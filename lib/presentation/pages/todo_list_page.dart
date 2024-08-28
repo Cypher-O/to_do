@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/domain/entities/todo.dart';
+import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 import 'package:to_do/presentation/widgets/animated_fab.dart';
 import 'package:to_do/presentation/widgets/todo_item_widget.dart';
@@ -29,6 +30,14 @@ class _TodoListPageState extends State<TodoListPage>
     );
     _fadeAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
+ _checkAuthAndLoadTodos();
+  }
+
+  void _checkAuthAndLoadTodos() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      context.read<TodoBloc>().add(LoadTodos());
+    }
   }
 
   @override
@@ -54,7 +63,7 @@ class _TodoListPageState extends State<TodoListPage>
               if (state is TodoLoaded) {
                 _updateSortedTodos(state.todos);
                 _fadeController.forward();
-                setState(() {}); 
+                setState(() {});
               }
             },
             builder: (context, state) {
@@ -126,7 +135,8 @@ class _TodoListPageState extends State<TodoListPage>
     );
   }
 
-  void _handleTodoDismissal(Todo dismissedTodo, int index, DismissDirection direction) {
+  void _handleTodoDismissal(
+      Todo dismissedTodo, int index, DismissDirection direction) {
     setState(() {
       _sortedTodos.removeAt(index);
       _listKey.currentState?.removeItem(
@@ -148,7 +158,7 @@ class _TodoListPageState extends State<TodoListPage>
         completed: !dismissedTodo.completed,
       );
       context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
-      
+
       // Re-add the updated todo to the list
       setState(() {
         _sortedTodos.add(updatedTodo);
@@ -161,9 +171,10 @@ class _TodoListPageState extends State<TodoListPage>
   void _sortTodos() {
     _sortedTodos.sort((a, b) {
       if (a.completed == b.completed) {
+        // Keep newer items (higher ID or newly added items) at the top within their respective sections
         return b.id.compareTo(a.id);
       }
-      return a.completed ? 1 : -1;
+      return a.completed ? 1 : -1; // Place unchecked items at the top
     });
   }
 
@@ -171,9 +182,10 @@ class _TodoListPageState extends State<TodoListPage>
     final newSortedTodos = List<Todo>.from(todos)
       ..sort((a, b) {
         if (a.completed == b.completed) {
-          return b.id.compareTo(a.id);
+          return b.id
+              .compareTo(a.id); // Sort newer items first within their section
         }
-        return a.completed ? 1 : -1;
+        return a.completed ? 1 : -1; // Unchecked items at the top
       });
 
     if (_sortedTodos.isEmpty) {
@@ -185,8 +197,15 @@ class _TodoListPageState extends State<TodoListPage>
         final newTodo = newSortedTodos[i];
         final oldIndex = _sortedTodos.indexWhere((t) => t.id == newTodo.id);
         if (oldIndex == -1) {
-          _sortedTodos.insert(i, newTodo);
-          _listKey.currentState?.insertItem(i);
+          // New todo, insert at the top of the respective section
+          int newIndex = newTodo.completed
+              ? _sortedTodos.indexWhere((todo) => todo.completed)
+              : 0;
+
+          if (newIndex == -1) newIndex = _sortedTodos.length;
+
+          _sortedTodos.insert(newIndex, newTodo);
+          _listKey.currentState?.insertItem(newIndex);
         } else if (oldIndex != i) {
           final todo = _sortedTodos.removeAt(oldIndex);
           _listKey.currentState?.removeItem(
@@ -212,24 +231,32 @@ class _TodoListPageState extends State<TodoListPage>
   }
 
   void _handleTodoUpdate(Todo updatedTodo, int oldIndex) {
-    int newIndex = updatedTodo.completed
-        ? _sortedTodos.indexWhere((todo) => todo.completed)
-        : 0;
-    if (newIndex == -1) newIndex = _sortedTodos.length;
+    // Remove the todo from its current position
+    final item = _sortedTodos.removeAt(oldIndex);
+    _listKey.currentState?.removeItem(
+      oldIndex,
+      (context, animation) => _buildItem(item, animation, oldIndex),
+      duration: const Duration(milliseconds: 300),
+    );
 
-    if (oldIndex != newIndex) {
-      final item = _sortedTodos.removeAt(oldIndex);
-      _listKey.currentState?.removeItem(
-        oldIndex,
-        (context, animation) => _buildItem(item, animation, oldIndex),
-        duration: const Duration(milliseconds: 300),
-      );
-      _sortedTodos.insert(newIndex, updatedTodo);
-      _listKey.currentState
-          ?.insertItem(newIndex, duration: const Duration(milliseconds: 300));
-    } else {
-      _sortedTodos[newIndex] = updatedTodo;
+    // Determine the new index based on the completed state
+    int newIndex = updatedTodo.completed
+        ? _sortedTodos
+            .indexWhere((todo) => todo.completed) // Top of checked section
+        : _sortedTodos
+            .indexWhere((todo) => todo.completed); // Top of unchecked section
+
+    // If no matching section is found, append to the end
+    if (newIndex == -1) {
+      newIndex = updatedTodo.completed ? _sortedTodos.length : 0;
     }
+
+    // Insert the updated todo at the new position
+    _sortedTodos.insert(newIndex, updatedTodo);
+    _listKey.currentState?.insertItem(
+      newIndex,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   void _showAddTodoDialog(BuildContext context) {
