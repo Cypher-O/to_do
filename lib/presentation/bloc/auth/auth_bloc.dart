@@ -20,6 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
+    on<CheckAuthentication>(_onCheckAuthentication);
     // on<LogoutRequested>(_onLogoutRequested);
   }
 
@@ -53,6 +54,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  Future<void> _onCheckAuthentication(
+    CheckAuthentication event,
+    Emitter<AuthState> emit,
+  ) async {
+    final token = await secureStorage.read(key: 'token');
+    if (token != null) {
+      emit(AuthSuccess(User(token: token)));
+    } else {
+      emit(AuthInitial());
+    }
+  }
   // Future<void> _onLogoutRequested(
   //   LogoutRequested event,
   //   Emitter<AuthState> emit,

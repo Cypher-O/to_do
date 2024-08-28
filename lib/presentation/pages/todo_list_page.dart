@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/domain/entities/todo.dart';
+import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 import 'package:to_do/presentation/widgets/animated_fab.dart';
 import 'package:to_do/presentation/widgets/todo_item_widget.dart';
@@ -29,6 +30,14 @@ class _TodoListPageState extends State<TodoListPage>
     );
     _fadeAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
+ _checkAuthAndLoadTodos();
+  }
+
+  void _checkAuthAndLoadTodos() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      context.read<TodoBloc>().add(LoadTodos());
+    }
   }
 
   @override
