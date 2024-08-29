@@ -30,14 +30,8 @@ class _TodoListPageState extends State<TodoListPage>
     );
     _fadeAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
- _checkAuthAndLoadTodos();
-  }
-
-  void _checkAuthAndLoadTodos() {
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthSuccess) {
-      context.read<TodoBloc>().add(LoadTodos());
-    }
+     // Dispatch LoadTodos event after confirming authentication
+    context.read<AuthBloc>().add(CheckAuthentication());
   }
 
   @override
@@ -46,7 +40,7 @@ class _TodoListPageState extends State<TodoListPage>
     super.dispose();
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TodoBloc, TodoState>(
       builder: (context, state) {
@@ -63,11 +57,12 @@ class _TodoListPageState extends State<TodoListPage>
               if (state is TodoLoaded) {
                 _updateSortedTodos(state.todos);
                 _fadeController.forward();
-                setState(() {});
               }
             },
             builder: (context, state) {
-              if (state is TodoLoaded) {
+              if (state is TodoLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is TodoLoaded) {
                 if (state.todos.isEmpty) {
                   return Center(
                     child: FadeTransition(
@@ -90,13 +85,8 @@ class _TodoListPageState extends State<TodoListPage>
                   ),
                 );
               } else if (state is TodoError) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                });
-                return const Center(
-                  child: Text('An error occurred. Please try again.'),
+                return Center(
+                  child: Text('An error occurred: ${state.message}'),
                 );
               }
               return const Center(child: CircularProgressIndicator());
