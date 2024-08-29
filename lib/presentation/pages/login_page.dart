@@ -1,18 +1,27 @@
 import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          setState(() {
+            _isLoading = state is AuthLoading;
+          });
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -137,7 +146,21 @@ class LoginPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 30),
                                   ElevatedButton(
-                                    onPressed: state is AuthLoading
+                                    // onPressed: state is AuthLoading
+                                    //     ? null
+                                    //     : () {
+                                    //         if (_formKey.currentState
+                                    //                 ?.validate() ??
+                                    //             false) {
+                                    //           context.read<AuthBloc>().add(
+                                    //                 LoginRequested(
+                                    //                   _emailController.text,
+                                    //                   _passwordController.text,
+                                    //                 ),
+                                    //               );
+                                    //         }
+                                    //       },
+                                    onPressed: _isLoading
                                         ? null
                                         : () {
                                             if (_formKey.currentState
@@ -159,13 +182,25 @@ class LoginPage extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(30),
                                       ),
                                     ),
-                                    child: state is AuthLoading
+                                    // child: state is AuthLoading
+                                    //     ? const SizedBox(
+                                    //         width: 20,
+                                    //         height: 20,
+                                    //         child: CircularProgressIndicator(
+                                    //           color: Colors.white,
+                                    //           strokeWidth: 2,
+                                    //         ),
+                                    //       )
+                                    //     :
+                                    child: _isLoading
                                         ? const SizedBox(
                                             width: 20,
                                             height: 20,
                                             child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
                                             ),
                                           )
                                         : Text(
@@ -190,7 +225,8 @@ class LoginPage extends StatelessWidget {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => RegisterPage()),
+                                  builder: (context) => const RegisterPage(),
+                                ),
                               );
                             },
                             child: Text(

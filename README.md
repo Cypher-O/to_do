@@ -94,9 +94,9 @@ Please make sure to update tests as appropriate and adhere to the existing codin
 
 ## App Screenshots
 
-| ![Login Screen](/assets/screenshots/login.png) | ![Todo List](/assets/screenshots/todo_list.png) |
-|:--:|:--:|
-| Login Screen | Todo List |
+| ![Login Screen](/assets/screenshots/login.png) | ![Registration Screen](/assets/screenshots/register.png) | ![Todo List](/assets/screenshots/todo_list.png) |
+|:--:|:--:|:--:|
+| Login Screen | Registration Screen | Todo List |
 
 | ![Add Todo](/assets/screenshots/add_todo.png) | ![Edit Todo](/assets/screenshots/edit_todo.png) |
 |:--:|:--:|
@@ -104,9 +104,8 @@ Please make sure to update tests as appropriate and adhere to the existing codin
 
 ## Contact
 
-If you have any questions, feel free to reach out to [Your Name] at [your.email@example.com].
+If you have any questions, feel free to reach out to [Olumide Awodeji] at [olumide.awodeji@hotmail.com].
 
 ## APK Download URL
 
-[Todo App Download](https://your-app-download-link.com)
-
+[Todo App Download](https://jvec-todo-app.s3.us-east-2.amazonaws.com/Todo.apk)
