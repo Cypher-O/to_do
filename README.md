@@ -108,4 +108,4 @@ If you have any questions, feel free to reach out to [Olumide Awodeji] at [olumi
 
 ## APK Download URL
 
-[Todo App Download](https://jvec-todo-app.s3.us-east-2.amazonaws.com/Todo.apk)
+[Todo App Download](https://jvec-todo-app.s3.us-east-2.amazonaws.com/todo.apk)
