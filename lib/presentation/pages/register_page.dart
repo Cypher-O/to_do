@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 import 'package:to_do/presentation/pages/login_page.dart';
 import 'package:to_do/presentation/pages/todo_list_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:to_do/presentation/widgets/textField.dart';
+import 'package:to_do/presentation/widgets/background_circles.dart';
+import 'package:to_do/presentation/widgets/text_field.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -65,43 +65,7 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               // SVG background elements
-              Positioned(
-                top: -100,
-                left: -100,
-                child: FadeInDown(
-                  duration: const Duration(seconds: 1),
-                  child: SvgPicture.string(
-                    '''
-                  <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="150" cy="150" r="150" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="100" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="50" fill="white" fill-opacity="0.1"/>
-                  </svg>
-                  ''',
-                    width: 300,
-                    height: 300,
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -100,
-                right: -100,
-                child: FadeInUp(
-                  duration: const Duration(seconds: 1),
-                  delay: const Duration(milliseconds: 300),
-                  child: SvgPicture.string(
-                    '''
-                  <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="150" cy="150" r="150" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="100" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="50" fill="white" fill-opacity="0.1"/>
-                  </svg>
-                  ''',
-                    width: 300,
-                    height: 300,
-                  ),
-                ),
-              ),
+              const BackgroundCircles(),
               // Main content
               Center(
                 child: SingleChildScrollView(
