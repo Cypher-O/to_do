@@ -39,10 +39,10 @@ Before you begin, ensure you have met the following requirements:
 ## Installation
 
 1. Clone the repository:
-   git clone <https://github.com/Cypher-O/todo_app.git>
+   git clone <https://github.com/Cypher-O/to_do.git>
 
 2. Navigate to the project directory:
-   cd todo_app
+   cd to_do
 
 3. Get the dependencies:
    flutter pub get

@@ -146,20 +146,6 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   const SizedBox(height: 30),
                                   ElevatedButton(
-                                    // onPressed: state is AuthLoading
-                                    //     ? null
-                                    //     : () {
-                                    //         if (_formKey.currentState
-                                    //                 ?.validate() ??
-                                    //             false) {
-                                    //           context.read<AuthBloc>().add(
-                                    //                 LoginRequested(
-                                    //                   _emailController.text,
-                                    //                   _passwordController.text,
-                                    //                 ),
-                                    //               );
-                                    //         }
-                                    //       },
                                     onPressed: _isLoading
                                         ? null
                                         : () {
@@ -182,16 +168,6 @@ class _LoginPageState extends State<LoginPage> {
                                         borderRadius: BorderRadius.circular(30),
                                       ),
                                     ),
-                                    // child: state is AuthLoading
-                                    //     ? const SizedBox(
-                                    //         width: 20,
-                                    //         height: 20,
-                                    //         child: CircularProgressIndicator(
-                                    //           color: Colors.white,
-                                    //           strokeWidth: 2,
-                                    //         ),
-                                    //       )
-                                    //     :
                                     child: _isLoading
                                         ? const SizedBox(
                                             width: 20,
