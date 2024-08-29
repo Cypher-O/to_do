@@ -12,96 +12,45 @@ void main() async {
   runApp(const MyApp());
 }
 
-
-
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future<AuthState> _getAuthState() async {
-    final authBloc = di.sl<AuthBloc>();
-    // Dispatch an event to check authentication status
-    authBloc.add(CheckAuthentication());
-    // Await for the initial state to be emitted
-    return authBloc.stream.firstWhere(
-      (state) => state is AuthSuccess || state is AuthInitial,
-      orElse: () => AuthInitial(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<AuthState>(
-      future: _getAuthState(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const MaterialApp(
-            home: Scaffold(body: Center(child: CircularProgressIndicator())),
-          );
-        }
-
-        final authState = snapshot.data;
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider<AuthBloc>(
-              create: (context) => di.sl<AuthBloc>(),
-            ),
-            BlocProvider<TodoBloc>(
-              create: (context) => di.sl<TodoBloc>(),
-            ),
-          ],
-          child: MaterialApp(
+    return BlocProvider<AuthBloc>(
+      create: (context) => di.sl<AuthBloc>()..add(CheckAuthentication()),
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is AuthSuccess) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<AuthBloc>.value(value: context.read<AuthBloc>()),
+                BlocProvider<TodoBloc>(
+                  create: (context) => di.sl<TodoBloc>(param1: state.user.token)..add(LoadTodos()),
+                ),
+              ],
+              child: MaterialApp(
+                title: 'To-Do App',
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(
+                  primarySwatch: Colors.green,
+                  visualDensity: VisualDensity.adaptivePlatformDensity,
+                ),
+                home: const TodoListPage(),
+              ),
+            );
+          }
+          return MaterialApp(
             title: 'To-Do App',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               primarySwatch: Colors.blue,
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
-            home: authState is AuthSuccess
-                ? const TodoListPage()
-                : LoginPage(),
-          ),
-        );
-      },
+            home: LoginPage(),
+          );
+        },
+      ),
     );
   }
 }
-
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MultiBlocProvider(
-//       providers: [
-//         BlocProvider<AuthBloc>(
-//           create: (context) => di.sl<AuthBloc>(),
-//         ),
-//         BlocProvider<TodoBloc>(
-//           create: (context) => di.sl<TodoBloc>()..add(LoadTodos()),
-//         ),
-//       ],
-//       child: MaterialApp(
-//         title: 'To-Do App',
-//         debugShowCheckedModeBanner: false,
-//         theme: ThemeData(
-//           primarySwatch: Colors.blue,
-//           visualDensity: VisualDensity.adaptivePlatformDensity,
-//         ),
-//         // home: LoginPage(),
-//          home: BlocBuilder<AuthBloc, AuthState>(
-//           builder: (context, state) {
-//             if (state is AuthSuccess) {
-//               // If authenticated, load todos and show TodoListPage
-//               context.read<TodoBloc>().add(LoadTodos());
-//               return const TodoListPage();
-//             }
-//             // If not authenticated, show LoginPage
-//             return LoginPage();
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }

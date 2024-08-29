@@ -21,7 +21,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<CheckAuthentication>(_onCheckAuthentication);
-    // on<LogoutRequested>(_onLogoutRequested);
   }
 
   Future<void> _onLoginRequested(
@@ -54,7 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onCheckAuthentication(
+ Future<void> _onCheckAuthentication(
     CheckAuthentication event,
     Emitter<AuthState> emit,
   ) async {
@@ -65,11 +64,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthInitial());
     }
   }
-  // Future<void> _onLogoutRequested(
-  //   LogoutRequested event,
-  //   Emitter<AuthState> emit,
-  // ) async {
-  //   await secureStorage.delete(key: 'token');
-  //   emit(AuthInitial());
-  // }
 }
