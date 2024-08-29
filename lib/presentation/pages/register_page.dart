@@ -1,19 +1,28 @@
 import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 
-class RegisterPage extends StatelessWidget {
-  RegisterPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          setState(() {
+            _isLoading = state is AuthLoading;
+          });
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -150,7 +159,7 @@ class RegisterPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 30),
                                   ElevatedButton(
-                                    onPressed: state is AuthLoading
+                                    onPressed: _isLoading
                                         ? null
                                         : () {
                                             if (_formKey.currentState
@@ -173,13 +182,15 @@ class RegisterPage extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(30),
                                       ),
                                     ),
-                                    child: state is AuthLoading
+                                    child: _isLoading
                                         ? const SizedBox(
                                             width: 20,
                                             height: 20,
                                             child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
                                             ),
                                           )
                                         : Text(
@@ -204,7 +215,7 @@ class RegisterPage extends StatelessWidget {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoginPage(),
+                                  builder: (context) => const LoginPage(),
                                 ),
                               );
                             },
