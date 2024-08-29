@@ -5,6 +5,7 @@ import 'package:to_do/presentation/pages/login_page.dart';
 import 'package:to_do/presentation/pages/todo_list_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:to_do/presentation/widgets/textField.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -141,7 +142,7 @@ class RegisterPage extends StatelessWidget {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  _buildTextField(
+                                  textField(
                                     controller: _usernameController,
                                     label: 'Username',
                                     icon: Icons.person,
@@ -153,7 +154,7 @@ class RegisterPage extends StatelessWidget {
                                     },
                                   ),
                                   const SizedBox(height: 20),
-                                  _buildTextField(
+                                  textField(
                                     controller: _emailController,
                                     label: 'Email',
                                     icon: Icons.email,
@@ -169,7 +170,7 @@ class RegisterPage extends StatelessWidget {
                                     },
                                   ),
                                   const SizedBox(height: 20),
-                                  _buildTextField(
+                                  textField(
                                     controller: _passwordController,
                                     label: 'Password',
                                     icon: Icons.lock,
@@ -256,33 +257,6 @@ class RegisterPage extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool obscureText = false,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xFF4CAF50)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: Colors.grey[200],
-        contentPadding: const EdgeInsets.symmetric(vertical: 15),
-      ),
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
     );
   }
 }
