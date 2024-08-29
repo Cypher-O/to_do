@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/injection_container.dart' as di;
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
-import 'package:to_do/presentation/pages/login_page.dart';
-import 'package:to_do/presentation/pages/todo_list_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

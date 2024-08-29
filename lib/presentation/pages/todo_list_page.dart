@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/domain/entities/todo.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
-import 'package:to_do/presentation/widgets/animated_fab.dart';
-import 'package:to_do/presentation/widgets/todo_item_widget.dart';
 
 class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
@@ -30,7 +27,7 @@ class _TodoListPageState extends State<TodoListPage>
     );
     _fadeAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
-     // Dispatch LoadTodos event after confirming authentication
+    // Dispatch LoadTodos event after confirming authentication
     context.read<AuthBloc>().add(CheckAuthentication());
   }
 
@@ -40,7 +37,7 @@ class _TodoListPageState extends State<TodoListPage>
     super.dispose();
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<TodoBloc, TodoState>(
       builder: (context, state) {
@@ -67,9 +64,12 @@ class _TodoListPageState extends State<TodoListPage>
                   return Center(
                     child: FadeTransition(
                       opacity: _fadeAnimation,
-                      child: const Text(
-                        'No todos available. Add some!',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      child: Text(
+                        noTodosAvailable,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   );
@@ -86,7 +86,9 @@ class _TodoListPageState extends State<TodoListPage>
                 );
               } else if (state is TodoError) {
                 return Center(
-                  child: Text('An error occurred: ${state.message}'),
+                  child: Text(
+                    '$errorOccurred${state.message}',
+                  ),
                 );
               }
               return const Center(child: CircularProgressIndicator());
@@ -279,9 +281,9 @@ class _TodoListPageState extends State<TodoListPage>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'Add New Todo',
-                      style: TextStyle(
+                    Text(
+                      addNewTodo,
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -292,7 +294,7 @@ class _TodoListPageState extends State<TodoListPage>
                     TextField(
                       controller: titleController,
                       decoration: InputDecoration(
-                        hintText: 'Enter todo title',
+                        hintText: enterTodo,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -305,7 +307,7 @@ class _TodoListPageState extends State<TodoListPage>
                     TextField(
                       controller: descriptionController,
                       decoration: InputDecoration(
-                        hintText: 'Enter todo description',
+                        hintText: enterTodoDescription,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -335,9 +337,9 @@ class _TodoListPageState extends State<TodoListPage>
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Add Todo',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      child: Text(
+                        addTodo,
+                        style: const TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
                   ],

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/domain/entities/todo.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
 
@@ -22,22 +21,22 @@ class TodoItemWidget extends StatelessWidget {
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  void _handleTodoDismissal(Todo todo, DismissDirection direction, BuildContext context) {
-  if (direction == DismissDirection.endToStart) {
-    // Delete the todo
-    context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
-  } else if (direction == DismissDirection.startToEnd) {
-    // Toggle completion state of the todo
-    final updatedTodo = Todo(
-      id: todo.id,
-      title: todo.title,
-      description: todo.description,
-      completed: !todo.completed,
-    );
-    context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
+  void _handleTodoDismissal(
+      Todo todo, DismissDirection direction, BuildContext context) {
+    if (direction == DismissDirection.endToStart) {
+      // Delete the todo
+      context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
+    } else if (direction == DismissDirection.startToEnd) {
+      // Toggle completion state of the todo
+      final updatedTodo = Todo(
+        id: todo.id,
+        title: todo.title,
+        description: todo.description,
+        completed: !todo.completed,
+      );
+      context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,44 +53,44 @@ class TodoItemWidget extends StatelessWidget {
         alignment: Alignment.centerRight,
       ),
       confirmDismiss: (direction) async {
-  if (direction == DismissDirection.endToStart) {
-    // Confirm delete
-    return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirm"),
-          content: const Text("Are you sure you want to delete this item?"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text("CANCEL"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text("DELETE"),
-            ),
-          ],
-        );
-      },
-    );
-  } else if (direction == DismissDirection.startToEnd) {
-    // Toggle completion state of the todo
-    final updatedTodo = Todo(
-      id: todo.id,
-      title: todo.title,
-      description: todo.description,
-      completed: !todo.completed,
-    );
-    context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
+        if (direction == DismissDirection.endToStart) {
+          // Confirm delete
+          return await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(confirm),
+                content: Text(confirmationMessage),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text(delete),
+                  ),
+                ],
+              );
+            },
+          );
+        } else if (direction == DismissDirection.startToEnd) {
+          // Toggle completion state of the todo
+          final updatedTodo = Todo(
+            id: todo.id,
+            title: todo.title,
+            description: todo.description,
+            completed: !todo.completed,
+          );
+          context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
 
-    // Prevent the Dismissible from being dismissed visually
-    return false; // Returning false to keep the Dismissible in the tree
-  }
-  return false;
-},
+          // Prevent the Dismissible from being dismissed visually
+          return false; // Returning false to keep the Dismissible in the tree
+        }
+        return false;
+      },
       onDismissed: (direction) {
-         _handleTodoDismissal(todo, direction, context);
+        _handleTodoDismissal(todo, direction, context);
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -154,10 +153,6 @@ class TodoItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-            // trailing: IconButton(
-            //   icon: const Icon(Icons.edit, color: Colors.blue),
-            //   onPressed: () => _showEditTodoDialog(context),
-            // ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -234,9 +229,9 @@ class TodoItemWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'Edit Todo',
-                      style: TextStyle(
+                    Text(
+                      editTodo,
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -247,7 +242,7 @@ class TodoItemWidget extends StatelessWidget {
                     TextField(
                       controller: titleController,
                       decoration: InputDecoration(
-                        hintText: 'Update todo title',
+                        hintText: updateTodoTitle,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -262,7 +257,7 @@ class TodoItemWidget extends StatelessWidget {
                     TextField(
                       controller: descriptionController,
                       decoration: InputDecoration(
-                        hintText: 'Update todo description',
+                        hintText: updateTodoDescription,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -306,9 +301,12 @@ class TodoItemWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Save Todo',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      child: Text(
+                        saveTodo,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],

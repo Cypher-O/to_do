@@ -1,11 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
-import 'package:to_do/presentation/pages/register_page.dart';
-import 'package:to_do/presentation/pages/todo_list_page.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:to_do/presentation/widgets/background_circles.dart';
-import 'package:to_do/presentation/widgets/text_field.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -22,27 +16,35 @@ class LoginPage extends StatelessWidget {
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Login Successful',
-                    style: TextStyle(color: Colors.white)),
+                content: Text(
+                  loginSuccessfulMessage,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TodoListPage()),
+              MaterialPageRoute(
+                builder: (context) => const TodoListPage(),
+              ),
             );
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.error,
-                    style: const TextStyle(color: Colors.white)),
+                content: Text(
+                  state.error,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: Colors.red,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
           }
@@ -75,9 +77,9 @@ class LoginPage extends StatelessWidget {
                       children: [
                         FadeInDown(
                           duration: const Duration(milliseconds: 500),
-                          child: const Text(
-                            'Welcome Back',
-                            style: TextStyle(
+                          child: Text(
+                            loginTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -107,15 +109,15 @@ class LoginPage extends StatelessWidget {
                                 children: [
                                   textField(
                                     controller: _emailController,
-                                    label: 'Email',
+                                    label: email,
                                     icon: Icons.email,
                                     keyboardType: TextInputType.emailAddress,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter an email';
+                                        return emptyEmailField;
                                       } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
                                           .hasMatch(value)) {
-                                        return 'Please enter a valid email';
+                                        return invalidEmail;
                                       }
                                       return null;
                                     },
@@ -123,12 +125,12 @@ class LoginPage extends StatelessWidget {
                                   const SizedBox(height: 20),
                                   textField(
                                     controller: _passwordController,
-                                    label: 'Password',
+                                    label: password,
                                     icon: Icons.lock,
                                     obscureText: true,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter a password';
+                                        return emptyPasswordField;
                                       }
                                       return null;
                                     },
@@ -166,9 +168,9 @@ class LoginPage extends StatelessWidget {
                                               strokeWidth: 2,
                                             ),
                                           )
-                                        : const Text(
-                                            'Login',
-                                            style: TextStyle(
+                                        : Text(
+                                            loginButtonText,
+                                            style: const TextStyle(
                                               fontSize: 18,
                                               color: Colors.white,
                                             ),
@@ -191,10 +193,10 @@ class LoginPage extends StatelessWidget {
                                     builder: (context) => RegisterPage()),
                               );
                             },
-                            child: const Text(
-                              'Don\'t have an account? Register here',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                            child: Text(
+                              registerLinkText,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
                             ),
                           ),
                         ),

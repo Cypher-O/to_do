@@ -1,11 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
-import 'package:to_do/presentation/pages/login_page.dart';
-import 'package:to_do/presentation/pages/todo_list_page.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:to_do/presentation/widgets/background_circles.dart';
-import 'package:to_do/presentation/widgets/text_field.dart';
 
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
@@ -23,27 +17,35 @@ class RegisterPage extends StatelessWidget {
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Registration Successful',
-                    style: TextStyle(color: Colors.white)),
+                content: Text(
+                  registrationSuccessfulMessage,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TodoListPage()),
+              MaterialPageRoute(
+                builder: (context) => const TodoListPage(),
+              ),
             );
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.error,
-                    style: const TextStyle(color: Colors.white)),
+                content: Text(
+                  state.error,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: Colors.red,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
           }
@@ -76,9 +78,9 @@ class RegisterPage extends StatelessWidget {
                       children: [
                         FadeInDown(
                           duration: const Duration(milliseconds: 500),
-                          child: const Text(
-                            'Create Account',
-                            style: TextStyle(
+                          child: Text(
+                            registerTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -108,11 +110,11 @@ class RegisterPage extends StatelessWidget {
                                 children: [
                                   textField(
                                     controller: _usernameController,
-                                    label: 'Username',
+                                    label: username,
                                     icon: Icons.person,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter a username';
+                                        return emptyUsernameField;
                                       }
                                       return null;
                                     },
@@ -120,15 +122,15 @@ class RegisterPage extends StatelessWidget {
                                   const SizedBox(height: 20),
                                   textField(
                                     controller: _emailController,
-                                    label: 'Email',
+                                    label: email,
                                     icon: Icons.email,
                                     keyboardType: TextInputType.emailAddress,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter an email';
+                                        return emptyEmailField;
                                       } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
                                           .hasMatch(value)) {
-                                        return 'Please enter a valid email';
+                                        return invalidEmail;
                                       }
                                       return null;
                                     },
@@ -136,12 +138,12 @@ class RegisterPage extends StatelessWidget {
                                   const SizedBox(height: 20),
                                   textField(
                                     controller: _passwordController,
-                                    label: 'Password',
+                                    label: password,
                                     icon: Icons.lock,
                                     obscureText: true,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter a password';
+                                        return emptyPasswordField;
                                       }
                                       return null;
                                     },
@@ -180,9 +182,9 @@ class RegisterPage extends StatelessWidget {
                                               strokeWidth: 2,
                                             ),
                                           )
-                                        : const Text(
-                                            'Register',
-                                            style: TextStyle(
+                                        : Text(
+                                            registerButtonText,
+                                            style: const TextStyle(
                                               fontSize: 18,
                                               color: Colors.white,
                                             ),
@@ -202,13 +204,16 @@ class RegisterPage extends StatelessWidget {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => LoginPage()),
+                                  builder: (context) => LoginPage(),
+                                ),
                               );
                             },
-                            child: const Text(
-                              'Already have an account? Login',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                            child: Text(
+                              loginLinkText,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ),

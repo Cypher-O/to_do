@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:to_do/core/utils/imports/flutter_import.dart';
 
 class AnimatedFAB extends StatefulWidget {
   final VoidCallback onPressedCallback;
@@ -10,7 +10,8 @@ class AnimatedFAB extends StatefulWidget {
   AnimatedFABState createState() => AnimatedFABState();
 }
 
-class AnimatedFABState extends State<AnimatedFAB> with TickerProviderStateMixin {
+class AnimatedFABState extends State<AnimatedFAB>
+    with TickerProviderStateMixin {
   late AnimationController _rotationController;
   late AnimationController _bounceController;
   late Animation<double> _rotationAnimation;
@@ -30,15 +31,17 @@ class AnimatedFABState extends State<AnimatedFAB> with TickerProviderStateMixin 
       vsync: this,
     );
 
-    _rotationAnimation = Tween<double>(begin: 0, end: 2 * math.pi)
-        .animate(CurvedAnimation(parent: _rotationController, curve: Curves.easeInOutBack));
+    _rotationAnimation = Tween<double>(begin: 0, end: 2 * math.pi).animate(
+        CurvedAnimation(
+            parent: _rotationController, curve: Curves.easeInOutBack));
 
     _bounceAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween<double>(begin: 1, end: 1.2), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 1.2, end: 0.9), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 0.9, end: 1.1), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 1.1, end: 1), weight: 1),
-    ]).animate(CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut));
+    ]).animate(
+        CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut));
 
     _rotationController.repeat(reverse: true);
     _bounceController.repeat(reverse: true);

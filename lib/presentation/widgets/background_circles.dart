@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 
 class BackgroundCircles extends StatelessWidget {
   final double size;
