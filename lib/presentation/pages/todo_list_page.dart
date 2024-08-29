@@ -252,100 +252,16 @@ class _TodoListPageState extends State<TodoListPage>
   }
 
   void _showAddTodoDialog(BuildContext context) {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            bool isButtonEnabled() {
-              return titleController.text.isNotEmpty &&
-                  descriptionController.text.isNotEmpty;
-            }
-
-            return Container(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      addNewTodo,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: titleController,
-                      decoration: InputDecoration(
-                        hintText: enterTodo,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.title),
-                      ),
-                      autofocus: true,
-                      onChanged: (value) => setState(() {}),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(
-                        hintText: enterTodoDescription,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.description),
-                      ),
-                      maxLines: 3,
-                      onChanged: (value) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: isButtonEnabled()
-                          ? () {
-                              context.read<TodoBloc>().add(
-                                    AddTodoEvent(
-                                      titleController.text,
-                                      descriptionController.text,
-                                    ),
-                                  );
-                              Navigator.pop(context);
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        disabledBackgroundColor: Colors.grey.shade300,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        addTodo,
-                        style: const TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+        return TodoFormBottomSheet(
+          title: addNewTodo,
+          submitButtonText: addTodo,
+          onSubmit: (title, description) {
+            context.read<TodoBloc>().add(AddTodoEvent(title, description));
           },
         );
       },

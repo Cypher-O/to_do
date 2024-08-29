@@ -201,118 +201,26 @@ class TodoItemWidget extends StatelessWidget {
   }
 
   void _showEditTodoDialog(BuildContext context) {
-    final titleController = TextEditingController(text: todo.title);
-    final descriptionController = TextEditingController(text: todo.description);
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            void updateButtonState() {
-              setState(() {});
-            }
-
-            return Container(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      editTodo,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
+        return TodoFormBottomSheet(
+          title: editTodo,
+          submitButtonText: saveTodo,
+          initialTodo: todo,
+          onSubmit: (title, description) {
+            context.read<TodoBloc>().add(
+                  UpdateTodoEvent(
+                    Todo(
+                      id: todo.id,
+                      title: title,
+                      description: description,
+                      completed: todo.completed,
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: titleController,
-                      decoration: InputDecoration(
-                        hintText: updateTodoTitle,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.title),
-                      ),
-                      autofocus: true,
-                      onChanged: (value) {
-                        updateButtonState();
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(
-                        hintText: updateTodoDescription,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.description),
-                      ),
-                      maxLines: 3,
-                      onChanged: (value) {
-                        updateButtonState();
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: titleController.text.isNotEmpty &&
-                              (titleController.text != todo.title ||
-                                  descriptionController.text !=
-                                      todo.description)
-                          ? () {
-                              final newTitle = titleController.text;
-                              final newDescription = descriptionController.text;
-
-                              if (newTitle.isNotEmpty) {
-                                context.read<TodoBloc>().add(
-                                      UpdateTodoEvent(
-                                        Todo(
-                                          id: todo.id,
-                                          title: newTitle,
-                                          description: newDescription,
-                                          completed: todo.completed,
-                                        ),
-                                      ),
-                                    );
-                                Navigator.pop(context);
-                              }
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        disabledBackgroundColor: Colors.grey.shade300,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        saveTodo,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+                  ),
+                );
           },
         );
       },
