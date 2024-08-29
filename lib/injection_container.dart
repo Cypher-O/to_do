@@ -1,5 +1,5 @@
-import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:to_do/core/utils/imports/plugin_import.dart';
 import 'package:to_do/domain/repositories/auth_repositories.dart';
 import 'package:to_do/domain/usecases/login_usecase.dart';
 import 'package:to_do/domain/usecases/register_usecase.dart';
@@ -16,8 +16,6 @@ import 'package:to_do/domain/usecases/delete_todo_usecase.dart';
 import 'package:to_do/data/datasources/todo_remote_data_source.dart';
 import 'package:to_do/data/repositories/todo_repository_impl.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
-
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final sl = GetIt.instance;
 

@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'package:to_do/core/utils/imports/plugin_import.dart';
 
 abstract class Failure extends Equatable {
   final String message;

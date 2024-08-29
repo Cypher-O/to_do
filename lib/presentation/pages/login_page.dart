@@ -1,10 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do/core/utils/imports/general_import.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
-import 'package:to_do/presentation/pages/register_page.dart';
-import 'package:to_do/presentation/pages/todo_list_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:animate_do/animate_do.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -21,27 +16,35 @@ class LoginPage extends StatelessWidget {
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Login Successful',
-                    style: TextStyle(color: Colors.white)),
+                content: Text(
+                  loginSuccessfulMessage,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TodoListPage()),
+              MaterialPageRoute(
+                builder: (context) => const TodoListPage(),
+              ),
             );
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.error,
-                    style: const TextStyle(color: Colors.white)),
+                content: Text(
+                  state.error,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: Colors.red,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
           }
@@ -63,43 +66,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               // SVG background elements
-              Positioned(
-                top: -100,
-                left: -100,
-                child: FadeInDown(
-                  duration: const Duration(seconds: 1),
-                  child: SvgPicture.string(
-                    '''
-                  <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="150" cy="150" r="150" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="100" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="50" fill="white" fill-opacity="0.1"/>
-                  </svg>
-                  ''',
-                    width: 300,
-                    height: 300,
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -100,
-                right: -100,
-                child: FadeInUp(
-                  duration: const Duration(seconds: 1),
-                  delay: const Duration(milliseconds: 300),
-                  child: SvgPicture.string(
-                    '''
-                  <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="150" cy="150" r="150" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="100" fill="white" fill-opacity="0.1"/>
-                    <circle cx="150" cy="150" r="50" fill="white" fill-opacity="0.1"/>
-                  </svg>
-                  ''',
-                    width: 300,
-                    height: 300,
-                  ),
-                ),
-              ),
+              const BackgroundCircles(),
               // Main content
               Center(
                 child: SingleChildScrollView(
@@ -110,9 +77,9 @@ class LoginPage extends StatelessWidget {
                       children: [
                         FadeInDown(
                           duration: const Duration(milliseconds: 500),
-                          child: const Text(
-                            'Welcome Back',
-                            style: TextStyle(
+                          child: Text(
+                            loginTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -140,30 +107,30 @@ class LoginPage extends StatelessWidget {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  _buildTextField(
+                                  textField(
                                     controller: _emailController,
-                                    label: 'Email',
+                                    label: email,
                                     icon: Icons.email,
                                     keyboardType: TextInputType.emailAddress,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter an email';
+                                        return emptyEmailField;
                                       } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
                                           .hasMatch(value)) {
-                                        return 'Please enter a valid email';
+                                        return invalidEmail;
                                       }
                                       return null;
                                     },
                                   ),
                                   const SizedBox(height: 20),
-                                  _buildTextField(
+                                  textField(
                                     controller: _passwordController,
-                                    label: 'Password',
+                                    label: password,
                                     icon: Icons.lock,
                                     obscureText: true,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter a password';
+                                        return emptyPasswordField;
                                       }
                                       return null;
                                     },
@@ -201,9 +168,9 @@ class LoginPage extends StatelessWidget {
                                               strokeWidth: 2,
                                             ),
                                           )
-                                        : const Text(
-                                            'Login',
-                                            style: TextStyle(
+                                        : Text(
+                                            loginButtonText,
+                                            style: const TextStyle(
                                               fontSize: 18,
                                               color: Colors.white,
                                             ),
@@ -226,10 +193,10 @@ class LoginPage extends StatelessWidget {
                                     builder: (context) => RegisterPage()),
                               );
                             },
-                            child: const Text(
-                              'Don\'t have an account? Register here',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                            child: Text(
+                              registerLinkText,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
                             ),
                           ),
                         ),
@@ -242,33 +209,6 @@ class LoginPage extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool obscureText = false,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xFF4CAF50)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: Colors.grey[200],
-        contentPadding: const EdgeInsets.symmetric(vertical: 15),
-      ),
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
     );
   }
 }
