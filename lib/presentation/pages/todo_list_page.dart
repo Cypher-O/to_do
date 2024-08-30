@@ -1,4 +1,5 @@
 import 'package:to_do/core/utils/imports/general_import.dart';
+import 'package:to_do/core/utils/todo_utilities.dart';
 import 'package:to_do/domain/entities/todo.dart';
 import 'package:to_do/presentation/bloc/auth/auth_bloc.dart';
 import 'package:to_do/presentation/bloc/todo/todo_bloc.dart';
@@ -121,44 +122,23 @@ class _TodoListPageState extends State<TodoListPage>
           _handleTodoUpdate(updatedTodo, index);
         },
         onDismissed: (dismissedTodo, direction) {
-          _handleTodoDismissal(dismissedTodo, index, direction);
+          _handleTodoDismissal(dismissedTodo, direction, context);
         },
       ),
     );
   }
 
-  void _handleTodoDismissal(
-      Todo dismissedTodo, int index, DismissDirection direction) {
-    setState(() {
-      _sortedTodos.removeAt(index);
-      _listKey.currentState?.removeItem(
-        index,
-        (context, animation) => _buildItem(dismissedTodo, animation, index),
-        duration: const Duration(milliseconds: 300),
-      );
-    });
-
-    if (direction == DismissDirection.endToStart) {
-      // Delete todo
-      context.read<TodoBloc>().add(DeleteTodoEvent(dismissedTodo.id));
-    } else {
-      // Toggle completion
-      final updatedTodo = Todo(
-        id: dismissedTodo.id,
-        title: dismissedTodo.title,
-        description: dismissedTodo.description,
-        completed: !dismissedTodo.completed,
-      );
-      context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
-
-      // Re-add the updated todo to the list
-      setState(() {
-        _sortedTodos.add(updatedTodo);
-        _sortTodos();
-        _listKey.currentState?.insertItem(_sortedTodos.indexOf(updatedTodo));
-      });
-    }
+  void _handleTodoDismissal(Todo todo, DismissDirection direction, BuildContext context) {
+  if (direction == DismissDirection.endToStart) {
+    // Delete the todo
+    context.read<TodoBloc>().add(DeleteTodoEvent(todo.id));
+  } else if (direction == DismissDirection.startToEnd) {
+    // Toggle completion state of the todo
+    final updatedTodo = toggleTodoCompletion(todo);
+    context.read<TodoBloc>().add(UpdateTodoEvent(updatedTodo));
   }
+}
+
 
   void _sortTodos() {
     _sortedTodos.sort((a, b) {
