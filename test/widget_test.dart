@@ -64,7 +64,6 @@ void main() {
 
     group('TodoItemWidget', () {
       late Todo testTodo;
-      late MockTodoBloc mockTodoBloc;
 
       setUp(() {
         testTodo = const Todo(
@@ -73,7 +72,6 @@ void main() {
           description: 'Test Description',
           completed: false,
         );
-        mockTodoBloc = MockTodoBloc();
       });
 
       testWidgets('displays correct information', (WidgetTester tester) async {
@@ -140,7 +138,7 @@ void main() {
       });
 
       testWidgets('can be dismissed', (WidgetTester tester) async {
-  final testTodo = Todo(
+  const testTodo = Todo(
     id: '1',
     title: 'Test Todo',
     description: 'Test Description',
@@ -153,7 +151,7 @@ void main() {
     MaterialApp(
       home: Scaffold(
         body: Dismissible(
-          key: Key('todo-item-${testTodo.id}'),
+          key: Key(testTodo.id),
           onDismissed: (_) {
             dismissedCalled = true;
           },
@@ -168,74 +166,73 @@ void main() {
     ),
   );
 
-  // Debug: Print widget tree before swipe
-  debugDumpApp();
+  // Check that there's only one Dismissible with the key
+  final dismissibleFinders = find.byKey(Key(testTodo.id));
+  expect(dismissibleFinders.evaluate().length, 1,
+      reason:
+          'Expected exactly one Dismissible widget with key [${testTodo.id}] but found ${dismissibleFinders.evaluate().length}');
 
-  // Find the Dismissible widget with the specific key
-  final dismissibleFinder = find.byKey(Key('todo-item-${testTodo.id}'));
-  expect(dismissibleFinder, findsOneWidget, reason: 'Dismissible widget not found');
-
-  // Perform a swipe gesture
-  await tester.fling(dismissibleFinder, const Offset(-500, 0), 1000);
+  // Perform the swipe gesture
+  await tester.fling(dismissibleFinders, const Offset(-500, 0), 1000);
   await tester.pumpAndSettle();
 
-  // Debug: Print widget tree after swipe
-  debugDumpApp();
-
-  // Ensure the TodoItemWidget is no longer in the widget tree
-  expect(find.byType(TodoItemWidget), findsNothing, reason: 'TodoItemWidget still present after swipe');
-
-  // Check if the onDismissed callback was called
+  // Check that the widget is no longer present
+  expect(find.byType(TodoItemWidget), findsNothing,
+      reason: 'TodoItemWidget still present after swipe');
   expect(dismissedCalled, isTrue, reason: 'Dismiss callback was not called');
 });
 
     });
     group('TodoFormBottomSheet', () {
-      testWidgets('renders correctly and submits form', (WidgetTester tester) async {
-  bool onSubmitCalled = false;
-  String submittedTitle = '';
-  String submittedDescription = '';
+      testWidgets('renders correctly and submits form',
+          (WidgetTester tester) async {
+        bool onSubmitCalled = false;
+        String submittedTitle = '';
+        String submittedDescription = '';
 
-  await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
-        body: TodoFormBottomSheet(
-          title: 'Add Todo',
-          submitButtonText: 'Add',
-          onSubmit: (title, description) {
-            onSubmitCalled = true;
-            submittedTitle = title;
-            submittedDescription = description;
-          },
-        ),
-      ),
-    ),
-  );
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: TodoFormBottomSheet(
+                title: 'Add Todo',
+                submitButtonText: 'Add',
+                onSubmit: (title, description) {
+                  onSubmitCalled = true;
+                  submittedTitle = title;
+                  submittedDescription = description;
+                },
+              ),
+            ),
+          ),
+        );
 
-  expect(find.text('Add Todo'), findsOneWidget);
-  expect(find.text('Add'), findsOneWidget);
+        expect(find.text('Add Todo'), findsOneWidget);
+        expect(find.text('Add'), findsOneWidget);
 
-  // Enter text in the form fields
-  await tester.enterText(find.byType(TextField).at(0), 'New Todo');
-  await tester.enterText(find.byType(TextField).at(1), 'Todo Description');
+        // Enter text in the form fields
+        await tester.enterText(find.byType(TextField).at(0), 'New Todo');
+        await tester.enterText(
+            find.byType(TextField).at(1), 'Todo Description');
 
-  // Ensure the submit button is enabled
-  await tester.pump();  // Ensure the widget tree updates
-  final ElevatedButton button = tester.widget(find.byType(ElevatedButton));
-  expect(button.enabled, isTrue, reason: 'Submit button should be enabled');
+        // Ensure the submit button is enabled
+        await tester.pump(); // Ensure the widget tree updates
+        final ElevatedButton button =
+            tester.widget(find.byType(ElevatedButton));
+        expect(button.enabled, isTrue,
+            reason: 'Submit button should be enabled');
 
-  // Find and tap the submit button
-  final addButtonFinder = find.text('Add');
-  expect(addButtonFinder, findsOneWidget, reason: 'Add button not found');
+        // Find and tap the submit button
+        final addButtonFinder = find.text('Add');
+        expect(addButtonFinder, findsOneWidget, reason: 'Add button not found');
 
-  await tester.tap(addButtonFinder);
-  await tester.pumpAndSettle();
+        await tester.tap(addButtonFinder);
+        await tester.pumpAndSettle();
 
-  expect(onSubmitCalled, isTrue, reason: 'onSubmit callback was not called');
-  expect(submittedTitle, 'New Todo');
-  expect(submittedDescription, 'Todo Description');
-});
-
+        expect(onSubmitCalled, isTrue,
+            reason: 'onSubmit callback was not called');
+        expect(submittedTitle, 'New Todo');
+        expect(submittedDescription, 'Todo Description');
+      });
     });
 
     group('TextField', () {
